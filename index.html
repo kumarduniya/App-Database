@@ -16,12 +16,38 @@
         .loader-spinner { border: 5px solid #334155; border-top: 5px solid #f97316; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* ========= HEADER ========= */
-        .hero-section { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); padding: 1rem 2rem; margin-bottom: 2.5rem; border-left: 6px solid #f39c12; border-radius: 8px; }
+        /* ========= HEADER (Centered & Premium) ========= */
+        .hero-section { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); 
+            padding: 1.2rem 2rem; margin-bottom: 1.5rem; 
+            border-left: 6px solid #f39c12; border-radius: 8px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .title-box { flex: 1; }
         .title-box h1 { font-size: 1.8rem; background: linear-gradient(130deg, #fff3cf, #ffd966); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; }
-        .title-box p { color: #fdebb3; font-weight: 500; margin-top: 4px;}
-        .admin-lock-icon { background: linear-gradient(145deg, #ff9f4a, #ff7e2e); padding: 10px 24px; color: white; font-weight: 800; cursor: pointer; border-radius: 8px; transition: 0.2s; box-shadow: 0 5px 12px rgba(0,0,0,0.2); }
+        .title-box p { color: #fdebb3; font-weight: 500; margin-top: 6px; font-size: 0.9rem;}
+        .header-actions { display: flex; gap: 12px; }
+        .admin-lock-icon { background: linear-gradient(145deg, #ff9f4a, #ff7e2e); padding: 10px 20px; color: white; font-weight: 800; cursor: pointer; border-radius: 8px; transition: 0.2s; box-shadow: 0 5px 12px rgba(0,0,0,0.2); white-space: nowrap;}
         .admin-lock-icon:hover { background: #e67e22; transform: translateY(-3px); }
+
+        @media (max-width: 650px) {
+            .hero-section { flex-direction: column; text-align: center; gap: 15px; padding: 1.5rem 1rem;}
+            .header-actions { width: 100%; justify-content: center; }
+        }
+
+        /* ========= SEARCH BAR ========= */
+        .search-bar-container {
+            background: #1e293b; padding: 12px 20px; border-radius: 8px; margin-bottom: 2.5rem;
+            display: flex; align-items: center; gap: 12px; border-left: 6px solid #10b981;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        .search-bar-container i { color: #10b981; font-size: 1.2rem; }
+        .search-bar-container input {
+            background: transparent; border: none; color: white; width: 100%; 
+            font-size: 1.05rem; outline: none; font-weight: 500;
+        }
+        .search-bar-container input::placeholder { color: #94a3b8; }
 
         /* ========= APP STYLE GRID ========= */
         .subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 1.8rem; margin-bottom: 3rem; justify-items: center; align-items: start; }
@@ -43,38 +69,45 @@
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; }
 
-        /* ========= COMPACT MASTER LIST (FIXED WRAPPING) ========= */
+        /* ========= COMPACT MASTER LIST (SMART WRAP & AUTO-SCROLL) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
-        .compact-list { display: flex; flex-direction: column; gap: 0.8rem; max-height: 400px; overflow-y: auto; }
+        
+        .compact-list { 
+            display: flex; flex-direction: column; gap: 0.8rem; 
+            max-height: 380px; overflow-y: auto; scroll-behavior: smooth;
+            padding-right: 5px; /* For scrollbar */
+        }
+        /* Custom Scrollbar for sleek look */
+        .compact-list::-webkit-scrollbar { width: 6px; }
+        .compact-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         
         .compact-chapter-item { 
             background: #0f172a; padding: 0.8rem 1rem; display: flex; 
             justify-content: space-between; align-items: center; 
             gap: 12px; border-left: 4px solid #f97316; border-radius: 4px; color: white; 
         }
+        
+        /* स्मार्ट रैपिंग लॉजिक (छोटा नाम बगल में, बड़ा नाम नीचे) */
         .compact-item-text { 
-            display: flex; flex-direction: column; align-items: flex-start; gap: 6px; flex: 1; min-width: 0; 
+            display: block; flex: 1; min-width: 0; line-height: 1.6;
         }
         .compact-badge { 
-            background: #ffedd5; padding: 4px 8px; font-weight: 700; color: #b45309; 
-            font-size: 0.75rem; border-radius: 4px; display: inline-block; 
-            white-space: normal; line-height: 1.3; word-break: break-word; max-width: 100%;
+            background: #ffedd5; padding: 3px 8px; font-weight: 700; color: #b45309; 
+            font-size: 0.75rem; border-radius: 4px; 
+            display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px;
         }
         .compact-item-text strong { 
-            color: white; white-space: normal; word-break: break-word; 
-            font-size: 0.95rem; line-height: 1.4; width: 100%;
+            color: white; font-size: 0.95rem; display: inline; vertical-align: middle; word-break: break-word;
         }
-        .compact-item-actions { 
-            display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; justify-content: center; align-items: center;
-        }
-
+        
+        .compact-item-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; justify-content: center; align-items: center; }
         .open-pdf-btn, .open-pdf-btn-small { background: #f97316; border: none; padding: 8px 16px; color: white; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.2s; white-space: nowrap; width: 100%; text-align: center;}
         .open-pdf-btn:hover, .open-pdf-btn-small:hover { background: #ea580c; transform: scale(1.03); }
         .delete-compact-btn, .delete-chapter-btn { background: #991b1b; border: none; padding: 6px 16px; border-radius: 4px; color: white; display: none; white-space: nowrap; width: 100%; text-align: center;}
         .delete-compact-btn.show-delete, .delete-chapter-btn.show-delete { display: inline-block; }
 
-        /* ========= OVERLAYS (FIXED TEXT WRAPPING) ========= */
+        /* ========= OVERLAYS ========= */
         .page-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 1000; overflow-y: auto; padding: 1.2rem; display: none; }
         .page-overlay.active { display: block; animation: fade 0.2s; }
         @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
@@ -87,16 +120,11 @@
             justify-content: space-between; align-items: center; 
             border-left: 4px solid #f97316; border-radius: 4px; margin-bottom: 12px; color: white; gap: 12px; 
         }
-        .chapter-link-text { 
-            flex: 1; min-width: 0; display: flex; gap: 10px; align-items: flex-start; 
-        }
-        .chapter-link-text span { margin-top: 2px; flex-shrink: 0; font-size: 1.1rem; }
-        .chapter-link-text strong { 
-            white-space: normal; word-break: break-word; line-height: 1.4; display: block; font-size: 0.95rem;
-        }
-        .chapter-link-actions { 
-            flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; 
-        }
+        .chapter-link-text { flex: 1; min-width: 0; display: block; line-height: 1.6; }
+        .chapter-link-text span { display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px; font-size: 1.1rem; }
+        .chapter-link-text strong { display: inline; vertical-align: middle; word-break: break-word; font-size: 0.95rem; }
+        
+        .chapter-link-actions { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         .sub-subject-card-item { background: #2d3a4b; padding: 0.8rem; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #f97316; border-radius: 4px; color: white; font-weight: bold; display: flex; justify-content: space-between;}
 
         /* ========= ADMIN PANEL ========= */
@@ -131,16 +159,25 @@
             <h1><i class="fas fa-database"></i> 📚 Study Notes Manager</h1>
             <p>लाइव ऑनलाइन डेटाबेस · ऐप स्टाइल लेआउट</p>
         </div>
-        <div class="admin-lock-icon" id="adminLockBtn"><i class="fas fa-lock"></i> एडमिन</div>
+        <div class="header-actions">
+            <div class="admin-lock-icon" id="adminLockBtn"><i class="fas fa-lock"></i> एडमिन</div>
+        </div>
+    </div>
+    
+    <div class="search-bar-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="globalSearchInput" placeholder="सर्च करें (उदा: alankar, math, pdf)...">
     </div>
     
     <div class="subjects-grid" id="subjectsGrid"></div>
+    
     <div class="master-chapters-section">
-        <div class="master-title"><i class="fas fa-layer-group"></i> सभी लिस्ट (संक्षिप्त सूची)</div>
+        <div class="master-title" id="listTitle"><i class="fas fa-layer-group"></i> सभी लिस्ट (संक्षिप्त सूची)</div>
         <div id="masterCompactList" class="compact-list"></div>
     </div>
+    
     <div class="site-footer">
-        <p>© 2025 नोट्स मैनेजमेंट सिस्टम | सम्पर्क: <strong>8273684939</strong></p>
+        <p>© 2025 Study Notes Manager | सम्पर्क: <strong>8273684939</strong></p>
     </div>
 
     <div id="adminPanel" class="admin-panel-area">
@@ -185,7 +222,6 @@
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE6NajCOnS0lZA-1ITRi72wL4eJjSetMr_zcOCsoijO4CNHWEHRq0TUg0H46oR0avBQQ/exec"; 
-    
     const ENCODED_ID = "ODI3MzY4NDkzOQ=="; 
     const ENCODED_PW = "QW5rdXNoQDEyMzFAMTIz"; 
     
@@ -197,6 +233,36 @@
     let currentOpenSubject = "";
     let currentOpenSubSubject = "";
     let isPageActive = "home"; 
+    let allGlobalItems = []; // सर्च के लिए सारी लिस्ट
+    
+    // 📖 HINGLISH TO HINDI DICTIONARY (देसी डिक्शनरी जुगाड़)
+    const hinglishDict = {
+        "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स",
+        "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान",
+        "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास",
+        "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक"
+    };
+
+    // 🚀 AUTO-SCROLL LOGIC
+    const compactListEl = document.getElementById("masterCompactList");
+    let isHoveringList = false;
+    
+    compactListEl.addEventListener("mouseenter", () => isHoveringList = true);
+    compactListEl.addEventListener("mouseleave", () => isHoveringList = false);
+    compactListEl.addEventListener("touchstart", () => isHoveringList = true);
+    compactListEl.addEventListener("touchend", () => { setTimeout(() => isHoveringList = false, 1500); });
+    
+    setInterval(() => {
+        // अगर सर्च बार में कुछ लिखा है तो स्क्रॉल मत करो
+        if(document.getElementById("globalSearchInput").value.trim() !== "") return;
+        
+        if (!isHoveringList && compactListEl.scrollHeight > compactListEl.clientHeight) {
+            compactListEl.scrollTop += 1; // 1px speed
+            if (Math.ceil(compactListEl.scrollTop + compactListEl.clientHeight) >= compactListEl.scrollHeight) {
+                compactListEl.scrollTop = 0; // लूप खत्म होने पर वापस ऊपर
+            }
+        }
+    }, 40); // स्पीड कंट्रोल (40ms)
 
     async function loadData() {
         try {
@@ -212,8 +278,7 @@
             document.getElementById("homeContainer").style.display = "block";
             fullRefresh();
         } catch (error) {
-            console.error(error);
-            document.getElementById("loadingText").innerText = "डेटा लोड करने में समस्या आई। इंटरनेट कनेक्शन जांचें।";
+            document.getElementById("loadingText").innerText = "डेटा लोड करने में समस्या आई।";
         }
     }
 
@@ -221,7 +286,6 @@
         try {
             const response = await fetch(SCRIPT_URL);
             const storedData = await response.json();
-            
             if (JSON.stringify(storedData) !== JSON.stringify(appData)) {
                 appData = storedData;
                 if(!appData.customSections) appData.customSections = {};
@@ -229,11 +293,8 @@
                 
                 fullRefresh();
                 
-                if (isPageActive === "subject" && currentOpenSubject) {
-                    openSubject(currentOpenSubject);
-                } else if (isPageActive === "subSubject" && currentOpenSubject && currentOpenSubSubject) {
-                    openSubSubject(currentOpenSubject, currentOpenSubSubject);
-                }
+                if (isPageActive === "subject" && currentOpenSubject) openSubject(currentOpenSubject);
+                else if (isPageActive === "subSubject" && currentOpenSubject && currentOpenSubSubject) openSubSubject(currentOpenSubject, currentOpenSubSubject);
             }
         } catch (error) {}
     }
@@ -244,10 +305,7 @@
         document.getElementById("loadingScreen").style.display = "flex";
         document.getElementById("loadingText").innerText = "अपडेट सेव हो रहा है...";
         try {
-            await fetch(SCRIPT_URL, {
-                method: "POST",
-                body: JSON.stringify({ data: appData })
-            });
+            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ data: appData }) });
             document.getElementById("loadingScreen").style.display = "none";
         } catch(e) {
             alert("सेव करने में एरर: " + e);
@@ -264,6 +322,7 @@
         for(let k in appData.customSections) sections.push({ key: k, isDefault: false, type: appData.customSections[k].type, contentType: appData.customSections[k].contentType || "pdf" });
         return sections;
     }
+    
     function getSectionData(key) {
         if(DEFAULT_SECTIONS.includes(key)) {
             if(key === "GKGS") return { type: "nested", contentType: "pdf", data: appData[key] };
@@ -271,6 +330,7 @@
         }
         return appData.customSections[key] || { type: "normal", contentType: "pdf", data: [] };
     }
+    
     function getTotalChapters(secKey) {
         const { type, data } = getSectionData(secKey);
         if(type === "normal") return data.length;
@@ -293,13 +353,7 @@
             else if(s.contentType === "test") icon = "fas fa-laptop-code"; 
             else if(s.contentType === "link") icon = "fas fa-link"; 
             
-            let customClass = '';
-            if(!s.isDefault) {
-                if(s.contentType === 'video') customClass = 'custom-video';
-                else if(s.contentType === 'test') customClass = 'custom-test';
-                else if(s.contentType === 'link') customClass = 'custom-link';
-                else customClass = 'custom-section';
-            }
+            let customClass = !s.isDefault ? (s.contentType === 'video' ? 'custom-video' : s.contentType === 'test' ? 'custom-test' : s.contentType === 'link' ? 'custom-link' : 'custom-section') : '';
             
             html += `<div class="subject-card ${customClass}" data-section="${s.key}"><div class="app-icon-box" data-section="${s.key}"><i class="${icon}"></i><div class="chapter-count-badge">${count}</div></div><div class="subject-name">${s.key}</div></div>`;
         });
@@ -315,9 +369,7 @@
     }
 
     function openSubject(secKey) {
-        currentOpenSubject = secKey;
-        isPageActive = "subject";
-        
+        currentOpenSubject = secKey; isPageActive = "subject";
         const { type, contentType, data } = getSectionData(secKey);
         const iconHtml = getIconHTML(contentType);
         const cont = document.getElementById("subjectDetailContent");
@@ -342,14 +394,8 @@
                 let h = "";
                 chapters.forEach(ch => { 
                     h += `<div class="chapter-link-card">
-                        <div class="chapter-link-text">
-                            <span>${iconHtml}</span> 
-                            <strong>${escapeHtml(ch.name)}</strong>
-                        </div>
-                        <div class="chapter-link-actions">
-                            <button class="open-pdf-btn-small" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>
-                            ${isAdminLoggedIn ? `<button class="delete-chapter-btn show-delete" data-section="${secKey}" data-id="${ch.id}"> हटाएँ</button>` : ''}
-                        </div>
+                        <div class="chapter-link-text"><span>${iconHtml}</span> <strong>${escapeHtml(ch.name)}</strong></div>
+                        <div class="chapter-link-actions"><button class="open-pdf-btn-small" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>${isAdminLoggedIn ? `<button class="delete-chapter-btn show-delete" data-section="${secKey}" data-id="${ch.id}"> हटाएँ</button>` : ''}</div>
                     </div>`; 
                 });
                 cont.innerHTML = h;
@@ -369,11 +415,7 @@
     }
 
     function openSubSubject(parent, subName) {
-        currentParentSection = parent; 
-        currentOpenSubject = parent;
-        currentOpenSubSubject = subName;
-        isPageActive = "subSubject";
-        
+        currentParentSection = parent; currentOpenSubject = parent; currentOpenSubSubject = subName; isPageActive = "subSubject";
         const { data, contentType } = getSectionData(parent);
         const iconHtml = getIconHTML(contentType);
         const chapters = data[subName] || [];
@@ -384,14 +426,8 @@
             let h = "";
             chapters.forEach(ch => { 
                 h += `<div class="chapter-link-card">
-                    <div class="chapter-link-text">
-                        <span>${iconHtml}</span> 
-                        <strong>${escapeHtml(ch.name)}</strong>
-                    </div>
-                    <div class="chapter-link-actions">
-                        <button class="open-pdf-btn-small" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>
-                        ${isAdminLoggedIn ? `<button class="delete-chapter-btn show-delete" data-parent="${parent}" data-subname="${subName}" data-id="${ch.id}"> हटाएँ</button>` : ''}
-                    </div>
+                    <div class="chapter-link-text"><span>${iconHtml}</span> <strong>${escapeHtml(ch.name)}</strong></div>
+                    <div class="chapter-link-actions"><button class="open-pdf-btn-small" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>${isAdminLoggedIn ? `<button class="delete-chapter-btn show-delete" data-parent="${parent}" data-subname="${subName}" data-id="${ch.id}"> हटाएँ</button>` : ''}</div>
                 </div>`; 
             });
             cont.innerHTML = h;
@@ -406,17 +442,46 @@
         document.getElementById("subjectPage").classList.remove("active");
     }
 
-    function renderCompactMasterList() {
+    // 🔍 SEARCH FUNCTIONALITY
+    document.getElementById("globalSearchInput").addEventListener("input", function(e) {
+        renderCompactMasterList(e.target.value);
+    });
+
+    function renderCompactMasterList(searchQuery = "") {
         const container = document.getElementById("masterCompactList");
-        let all = [];
+        allGlobalItems = [];
+        
         getAllSections().forEach(sec => {
             const { type, data } = getSectionData(sec.key);
-            if(type === "normal") data.forEach(ch => all.push({ ...ch, label: sec.key, sKey: sec.key }));
-            else for(let sub in data) data[sub].forEach(ch => all.push({ ...ch, label: `${sec.key} (${sub})`, sKey: sec.key, subName: sub }));
+            if(type === "normal") data.forEach(ch => allGlobalItems.push({ ...ch, label: sec.key, sKey: sec.key }));
+            else for(let sub in data) data[sub].forEach(ch => allGlobalItems.push({ ...ch, label: `${sec.key} (${sub})`, sKey: sec.key, subName: sub }));
         });
-        if(all.length === 0) { container.innerHTML = `<div style="color:white;">📭 कोई आइटम नहीं</div>`; return; }
+
+        let filteredItems = allGlobalItems;
+        
+        // Hinglish Search Logic
+        if(searchQuery.trim() !== "") {
+            let q = searchQuery.toLowerCase();
+            // डिक्शनरी से वर्ड ऐड करो (ताकि hindi लिखने पर हिंदी भी सर्च हो)
+            let extendedQuery = q;
+            for(let key in hinglishDict) { if(q.includes(key)) extendedQuery += " " + hinglishDict[key]; }
+            
+            let searchParts = extendedQuery.split(" ").filter(p => p.trim() !== "");
+            
+            filteredItems = allGlobalItems.filter(item => {
+                let targetText = (item.name + " " + item.label).toLowerCase();
+                // अगर कोई भी वर्ड मैच करता है, तो दिखाओ
+                return searchParts.some(part => targetText.includes(part));
+            });
+            document.getElementById("listTitle").innerHTML = `<i class="fas fa-search"></i> सर्च रिज़ल्ट (${filteredItems.length})`;
+        } else {
+            document.getElementById("listTitle").innerHTML = `<i class="fas fa-layer-group"></i> सभी लिस्ट (संक्षिप्त सूची)`;
+        }
+
+        if(filteredItems.length === 0) { container.innerHTML = `<div style="color:#94a3b8; text-align:center; padding: 20px;">📭 कोई रिजल्ट नहीं मिला</div>`; return; }
+        
         let h = "";
-        all.forEach(ch => {
+        filteredItems.forEach(ch => {
             const del = isAdminLoggedIn ? `<button class="delete-compact-btn show-delete" data-id="${ch.id}" data-seckey="${ch.sKey}" data-subname="${ch.subName || ''}"> हटाएँ</button>` : '';
             h += `<div class="compact-chapter-item">
                     <div class="compact-item-text">
@@ -502,7 +567,7 @@
         document.querySelectorAll(".delete-section-btn").forEach(btn => btn.addEventListener("click", async () => { let s = btn.getAttribute("data-sec"); if(confirm(`"${s}" डिलीट?`)) { delete appData.customSections[s]; await saveData(); fullRefresh(); } }));
     }
     
-    function fullRefresh() { renderHomeCards(); renderCompactMasterList(); updateAdminSelect(); renderManageSections(); if(isAdminLoggedIn) document.getElementById("adminPanel").classList.add("show-admin"); else document.getElementById("adminPanel").classList.remove("show-admin"); }
+    function fullRefresh() { renderHomeCards(); renderCompactMasterList(document.getElementById("globalSearchInput").value); updateAdminSelect(); renderManageSections(); if(isAdminLoggedIn) document.getElementById("adminPanel").classList.add("show-admin"); else document.getElementById("adminPanel").classList.remove("show-admin"); }
 
     const modal = document.getElementById("loginModal");
     const loginIdField = document.getElementById("loginUserId");
@@ -524,7 +589,6 @@
     
     document.getElementById("backHomeBtn").addEventListener("click", () => { document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
     document.getElementById("bottomBackHomeBtn").addEventListener("click", () => { document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
-    
     document.getElementById("backToSubjectsBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); openSubject(currentParentSection); });
     document.getElementById("subBackHomeBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
     document.getElementById("subBackToListBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); openSubject(currentParentSection); });
