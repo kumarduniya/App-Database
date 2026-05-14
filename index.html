@@ -9,9 +9,9 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: linear-gradient(135deg, #fff3e0 0%, #ffe6c7 100%); min-height: 100vh; padding: 1.5rem 1rem; }
-        .app-container { max-width: 1100px; margin: 0 auto; display: none; /* लोडिंग के बाद दिखेगा */ }
+        .app-container { max-width: 1100px; margin: 0 auto; display: none; }
         
-        /* लोडिंग स्क्रीन */
+        /* लोडिंग स्क्रीन (सिर्फ पहली बार दिखेगी) */
         #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; }
         .loader-spinner { border: 5px solid #334155; border-top: 5px solid #f97316; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -93,7 +93,6 @@
 </head>
 <body>
 
-<!-- लोडिंग स्क्रीन -->
 <div id="loadingScreen">
     <div class="loader-spinner"></div>
     <h3 id="loadingText">डेटा लोड हो रहा है...</h3>
@@ -117,7 +116,6 @@
         <p>© 2025 नोट्स मैनेजमेंट सिस्टम | सम्पर्क: <strong>8273684939</strong></p>
     </div>
 
-    <!-- एडमिन पैनल -->
     <div id="adminPanel" class="admin-panel-area">
         <button id="logoutAdminBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> लॉगआउट</button>
         <h3><i class="fas fa-user-shield"></i> एडमिन डैशबोर्ड</h3>
@@ -154,25 +152,29 @@
     </div>
 </div>
 
-<!-- Overlays -->
 <div id="subjectPage" class="page-overlay"><div class="detail-header"><button class="back-home-btn" id="backHomeBtn"><i class="fas fa-arrow-left"></i> होम</button><div class="subject-title-lg" id="detailSubjectTitle"></div></div><div id="subjectDetailContent" class="chapters-container"></div><div class="bottom-back-container" style="margin-top:20px; text-align:center;"><button class="bottom-back-btn" id="bottomBackHomeBtn"><i class="fas fa-home"></i> होम पेज</button></div></div>
 <div id="subSubjectPage" class="page-overlay"><div class="detail-header"><button class="back-home-btn" id="backToSubjectsBtn"><i class="fas fa-arrow-left"></i> विषय सूची</button><div class="subject-title-lg" id="subSubjectTitle"></div></div><div id="subSubjectChaptersList" class="chapters-container"></div><div class="bottom-back-container" style="margin-top:20px; text-align:center; display: flex; gap: 1rem; justify-content: center;"><button class="bottom-back-btn" id="subBackHomeBtn"><i class="fas fa-home"></i> होम</button><button class="bottom-back-btn" id="subBackToListBtn"><i class="fas fa-list"></i> विषय सूची</button></div></div>
 <div id="loginModal" class="modal"><div class="login-box"><i class="fas fa-user-cog" style="font-size: 2.5rem; color:#f97316; margin-bottom: 10px;"></i><h3>एडमिन लॉगिन</h3><input type="text" id="loginUserId" placeholder="मोबाइल नंबर"><input type="password" id="loginPassword" placeholder="पासवर्ड"><button class="btn-primary" id="submitLoginBtn" style="width:100%;">लॉगिन करें</button></div></div>
 
 <script>
-    // 🔴 यह रही तुम्हारी Google Script वाली जादुई लिंक 🔴
+    // तुम्हारी Google Script वाली जादुई लिंक
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE6NajCOnS0lZA-1ITRi72wL4eJjSetMr_zcOCsoijO4CNHWEHRq0TUg0H46oR0avBQQ/exec"; 
     
-    // Encrypted ID & Password
+    // Encrypted ID & Password (ताकि कोई Inspect करके न पढ़ सके)
     const ENCODED_ID = "ODI3MzY4NDkzOQ=="; 
     const ENCODED_PW = "QW5rdXNoQDEyMzFAMTIz"; 
     
     let isAdminLoggedIn = false;
     let appData = { customSections: {} };
-    let currentParentSection = "GKGS"; 
     const DEFAULT_SECTIONS = ["Hindi", "Math", "Reasoning", "CurrentAffairs", "GKGS"];
+    
+    // 📍 यूज़र अभी कौन से पेज पर है, यह ट्रैक करने के लिए वेरिएबल्स
+    let currentParentSection = "GKGS"; 
+    let currentOpenSubject = "";
+    let currentOpenSubSubject = "";
+    let isPageActive = "home"; // "home", "subject", "subSubject"
 
-    // 🌐 इंटरनेट से डेटा लोड करने वाला फंक्शन
+    // 🌐 इंटरनेट से डेटा लोड करने वाला फंक्शन (सिर्फ फर्स्ट टाइम लोडिंग स्क्रीन के साथ)
     async function loadData() {
         try {
             document.getElementById("loadingScreen").style.display = "flex";
@@ -183,7 +185,6 @@
             if(!appData.customSections) appData.customSections = {};
             DEFAULT_SECTIONS.forEach(s => { if(s === "GKGS") { if(!appData[s]) appData[s] = {}; } else if(!appData[s]) appData[s] = []; });
             
-            // डेटा आ गया, अब पेज दिखाओ
             document.getElementById("loadingScreen").style.display = "none";
             document.getElementById("homeContainer").style.display = "block";
             fullRefresh();
@@ -193,7 +194,37 @@
         }
     }
 
-    // 🌐 इंटरनेट (Google Sheet) पर डेटा सेव करने वाला फंक्शन
+    // 🕵️ साइलेंट बैकग्राउंड अपडेट (यह यूज़र को बिना बताए 10 सेकंड में डेटा चेक करेगा)
+    async function silentBackgroundUpdate() {
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const storedData = await response.json();
+            
+            // अगर पुराना डेटा और नया डेटा अलग है, तभी UI अपडेट करो
+            if (JSON.stringify(storedData) !== JSON.stringify(appData)) {
+                appData = storedData;
+                if(!appData.customSections) appData.customSections = {};
+                DEFAULT_SECTIONS.forEach(s => { if(s === "GKGS") { if(!appData[s]) appData[s] = {}; } else if(!appData[s]) appData[s] = []; });
+                
+                // होम पेज की ग्रिड और लिस्ट को साइलेंटली अपडेट करो
+                fullRefresh();
+                
+                // अगर स्टूडेंट किसी फोल्डर के अंदर है, तो उसे बंद किए बिना उसी फोल्डर को रिफ्रेश कर दो
+                if (isPageActive === "subject" && currentOpenSubject) {
+                    openSubject(currentOpenSubject);
+                } else if (isPageActive === "subSubject" && currentOpenSubject && currentOpenSubSubject) {
+                    openSubSubject(currentOpenSubject, currentOpenSubSubject);
+                }
+            }
+        } catch (error) {
+            // बैकग्राउंड में कोई एरर आये तो उसे इग्नोर करो, यूज़र को डिस्टर्ब मत करो
+        }
+    }
+
+    // 🕒 हर 10 सेकंड में बैकग्राउंड अपडेट फंक्शन चलाओ
+    setInterval(silentBackgroundUpdate, 10000);
+
+    // 🌐 इंटरनेट (Google Sheet) पर एडमिन द्वारा डेटा सेव करने वाला फंक्शन
     async function saveData() {
         document.getElementById("loadingScreen").style.display = "flex";
         document.getElementById("loadingText").innerText = "अपडेट सेव हो रहा है...";
@@ -269,6 +300,9 @@
     }
 
     function openSubject(secKey) {
+        currentOpenSubject = secKey;
+        isPageActive = "subject";
+        
         const { type, contentType, data } = getSectionData(secKey);
         const iconHtml = getIconHTML(contentType);
         const cont = document.getElementById("subjectDetailContent");
@@ -310,6 +344,10 @@
 
     function openSubSubject(parent, subName) {
         currentParentSection = parent; 
+        currentOpenSubject = parent;
+        currentOpenSubSubject = subName;
+        isPageActive = "subSubject";
+        
         const { data, contentType } = getSectionData(parent);
         const iconHtml = getIconHTML(contentType);
         const chapters = data[subName] || [];
@@ -437,11 +475,13 @@
     });
     
     document.getElementById("logoutAdminBtn")?.addEventListener("click", () => { isAdminLoggedIn=false; fullRefresh(); alert("लॉगआउट"); clearLoginFields(); });
-    document.getElementById("backHomeBtn").addEventListener("click", () => document.getElementById("subjectPage").classList.remove("active"));
-    document.getElementById("bottomBackHomeBtn").addEventListener("click", () => document.getElementById("subjectPage").classList.remove("active"));
+    
+    // Back Buttons (स्टेट रिसेट करने के लिए)
+    document.getElementById("backHomeBtn").addEventListener("click", () => { document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
+    document.getElementById("bottomBackHomeBtn").addEventListener("click", () => { document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
     
     document.getElementById("backToSubjectsBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); openSubject(currentParentSection); });
-    document.getElementById("subBackHomeBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); document.getElementById("subjectPage").classList.remove("active"); });
+    document.getElementById("subBackHomeBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
     document.getElementById("subBackToListBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); openSubject(currentParentSection); });
     
     document.getElementById("addChapterAdminBtn").addEventListener("click", addChapter);
