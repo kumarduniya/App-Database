@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>नोट्स मैनेजमेंट सिस्टम | लाइव ऐप</title>
+    <title>Study Notes Manager | लाइव ऐप</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -11,15 +11,15 @@
         body { background: linear-gradient(135deg, #fff3e0 0%, #ffe6c7 100%); min-height: 100vh; padding: 1.5rem 1rem; }
         .app-container { max-width: 1100px; margin: 0 auto; display: none; }
         
-        /* लोडिंग स्क्रीन (सिर्फ पहली बार दिखेगी) */
+        /* लोडिंग स्क्रीन */
         #loadingScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; }
         .loader-spinner { border: 5px solid #334155; border-top: 5px solid #f97316; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* ========= HEADER ========= */
         .hero-section { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; background: rgba(0,0,0,0.75); backdrop-filter: blur(10px); padding: 1rem 2rem; margin-bottom: 2.5rem; border-left: 6px solid #f39c12; border-radius: 8px; }
-        .title-box h1 { font-size: 1.9rem; background: linear-gradient(130deg, #fff3cf, #ffd966); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; }
-        .title-box p { color: #fdebb3; font-weight: 500; }
+        .title-box h1 { font-size: 1.8rem; background: linear-gradient(130deg, #fff3cf, #ffd966); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; }
+        .title-box p { color: #fdebb3; font-weight: 500; margin-top: 4px;}
         .admin-lock-icon { background: linear-gradient(145deg, #ff9f4a, #ff7e2e); padding: 10px 24px; color: white; font-weight: 800; cursor: pointer; border-radius: 8px; transition: 0.2s; box-shadow: 0 5px 12px rgba(0,0,0,0.2); }
         .admin-lock-icon:hover { background: #e67e22; transform: translateY(-3px); }
 
@@ -43,20 +43,61 @@
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; }
 
-        /* ========= COMPACT MASTER LIST ========= */
+        /* ========= COMPACT MASTER LIST (FIXED WRAPPING) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         .compact-list { display: flex; flex-direction: column; gap: 0.8rem; max-height: 400px; overflow-y: auto; }
-        .compact-chapter-item { background: #0f172a; padding: 0.7rem 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 10px; border-left: 4px solid #f97316; border-radius: 4px; color: white; overflow: hidden; }
-        .compact-item-text { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
-        .compact-item-text strong { color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .compact-badge { flex-shrink: 0; background: #ffedd5; padding: 4px 10px; font-weight: 700; color: #b45309; font-size: 0.7rem; border-radius: 4px; }
-        .compact-item-actions { display: flex; gap: 5px; flex-shrink: 0; }
+        
+        .compact-chapter-item { 
+            background: #0f172a; padding: 0.8rem 1rem; display: flex; 
+            justify-content: space-between; align-items: center; 
+            gap: 12px; border-left: 4px solid #f97316; border-radius: 4px; color: white; 
+        }
+        .compact-item-text { 
+            display: flex; flex-direction: column; align-items: flex-start; gap: 6px; flex: 1; min-width: 0; 
+        }
+        .compact-badge { 
+            background: #ffedd5; padding: 4px 8px; font-weight: 700; color: #b45309; 
+            font-size: 0.75rem; border-radius: 4px; display: inline-block; 
+            white-space: normal; line-height: 1.3; word-break: break-word; max-width: 100%;
+        }
+        .compact-item-text strong { 
+            color: white; white-space: normal; word-break: break-word; 
+            font-size: 0.95rem; line-height: 1.4; width: 100%;
+        }
+        .compact-item-actions { 
+            display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; justify-content: center; align-items: center;
+        }
 
-        .open-pdf-btn, .open-pdf-btn-small { background: #f97316; border: none; padding: 6px 16px; color: white; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.2s; white-space: nowrap; }
+        .open-pdf-btn, .open-pdf-btn-small { background: #f97316; border: none; padding: 8px 16px; color: white; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.2s; white-space: nowrap; width: 100%; text-align: center;}
         .open-pdf-btn:hover, .open-pdf-btn-small:hover { background: #ea580c; transform: scale(1.03); }
-        .delete-compact-btn { background: #991b1b; border: none; padding: 4px 12px; border-radius: 4px; color: white; display: none; white-space: nowrap;}
-        .delete-compact-btn.show-delete { display: inline-flex; gap: 4px; }
+        .delete-compact-btn, .delete-chapter-btn { background: #991b1b; border: none; padding: 6px 16px; border-radius: 4px; color: white; display: none; white-space: nowrap; width: 100%; text-align: center;}
+        .delete-compact-btn.show-delete, .delete-chapter-btn.show-delete { display: inline-block; }
+
+        /* ========= OVERLAYS (FIXED TEXT WRAPPING) ========= */
+        .page-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 1000; overflow-y: auto; padding: 1.2rem; display: none; }
+        .page-overlay.active { display: block; animation: fade 0.2s; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+        .detail-header { background: #1e293b; padding: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; border-left: 6px solid #f97316; margin-bottom: 1.5rem; border-radius: 4px; }
+        .back-home-btn, .bottom-back-btn { background: #334155; color: white; border: none; border-radius: 4px; padding: 8px 20px; font-weight: bold; cursor: pointer; }
+        .subject-title-lg { font-size: 1.8rem; color: #ffb347; font-weight: 800; }
+        
+        .chapter-link-card { 
+            background: #1e293b; padding: 0.8rem 1rem; display: flex; 
+            justify-content: space-between; align-items: center; 
+            border-left: 4px solid #f97316; border-radius: 4px; margin-bottom: 12px; color: white; gap: 12px; 
+        }
+        .chapter-link-text { 
+            flex: 1; min-width: 0; display: flex; gap: 10px; align-items: flex-start; 
+        }
+        .chapter-link-text span { margin-top: 2px; flex-shrink: 0; font-size: 1.1rem; }
+        .chapter-link-text strong { 
+            white-space: normal; word-break: break-word; line-height: 1.4; display: block; font-size: 0.95rem;
+        }
+        .chapter-link-actions { 
+            flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; 
+        }
+        .sub-subject-card-item { background: #2d3a4b; padding: 0.8rem; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #f97316; border-radius: 4px; color: white; font-weight: bold; display: flex; justify-content: space-between;}
 
         /* ========= ADMIN PANEL ========= */
         .admin-panel-area { display: none; margin-top: 2rem; background: #0f172a; padding: 1.6rem; border-left: 8px solid #f97316; border-radius: 8px; color: white;}
@@ -67,20 +108,6 @@
         .form-group input, .form-group select { background: #334155; border: none; padding: 10px; color: white; width: 100%; border-radius: 4px; }
         .btn-primary { background: #f97316; border: none; border-radius: 4px; padding: 10px 24px; font-weight: bold; cursor: pointer; color: white;}
         .section-manager { margin-top: 1.5rem; border-top: 1px solid #475569; padding-top: 1rem; }
-
-        /* ========= OVERLAYS ========= */
-        .page-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 1000; overflow-y: auto; padding: 1.2rem; display: none; }
-        .page-overlay.active { display: block; animation: fade 0.2s; }
-        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-        .detail-header { background: #1e293b; padding: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; border-left: 6px solid #f97316; margin-bottom: 1.5rem; border-radius: 4px; }
-        .back-home-btn, .bottom-back-btn { background: #334155; color: white; border: none; border-radius: 4px; padding: 8px 20px; font-weight: bold; cursor: pointer; }
-        .subject-title-lg { font-size: 1.8rem; color: #ffb347; font-weight: 800; }
-        .chapter-link-card { background: #1e293b; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #f97316; border-radius: 4px; margin-bottom: 12px; color: white; gap: 10px; flex-wrap: nowrap;}
-        .chapter-link-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .chapter-link-actions { flex-shrink: 0; display: flex; gap: 5px; }
-        .delete-chapter-btn { background: #991b1b; border: none; border-radius: 4px; padding: 4px 12px; color: white; display: none; }
-        .delete-chapter-btn.show-delete { display: inline-flex; }
-        .sub-subject-card-item { background: #2d3a4b; padding: 0.8rem; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #f97316; border-radius: 4px; color: white; font-weight: bold; display: flex; justify-content: space-between;}
 
         /* ========= LOGIN MODAL ========= */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.2s; }
@@ -101,8 +128,8 @@
 <div class="app-container" id="homeContainer">
     <div class="hero-section">
         <div class="title-box">
-            <h1><i class="fas fa-database"></i> 📚 नोट्स ऐप</h1>
-            <p>लाइव ऑनलाइन डेटाबेस</p>
+            <h1><i class="fas fa-database"></i> 📚 Study Notes Manager</h1>
+            <p>लाइव ऑनलाइन डेटाबेस · ऐप स्टाइल लेआउट</p>
         </div>
         <div class="admin-lock-icon" id="adminLockBtn"><i class="fas fa-lock"></i> एडमिन</div>
     </div>
@@ -157,10 +184,8 @@
 <div id="loginModal" class="modal"><div class="login-box"><i class="fas fa-user-cog" style="font-size: 2.5rem; color:#f97316; margin-bottom: 10px;"></i><h3>एडमिन लॉगिन</h3><input type="text" id="loginUserId" placeholder="मोबाइल नंबर"><input type="password" id="loginPassword" placeholder="पासवर्ड"><button class="btn-primary" id="submitLoginBtn" style="width:100%;">लॉगिन करें</button></div></div>
 
 <script>
-    // तुम्हारी Google Script वाली जादुई लिंक
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE6NajCOnS0lZA-1ITRi72wL4eJjSetMr_zcOCsoijO4CNHWEHRq0TUg0H46oR0avBQQ/exec"; 
     
-    // Encrypted ID & Password (ताकि कोई Inspect करके न पढ़ सके)
     const ENCODED_ID = "ODI3MzY4NDkzOQ=="; 
     const ENCODED_PW = "QW5rdXNoQDEyMzFAMTIz"; 
     
@@ -168,13 +193,11 @@
     let appData = { customSections: {} };
     const DEFAULT_SECTIONS = ["Hindi", "Math", "Reasoning", "CurrentAffairs", "GKGS"];
     
-    // 📍 यूज़र अभी कौन से पेज पर है, यह ट्रैक करने के लिए वेरिएबल्स
     let currentParentSection = "GKGS"; 
     let currentOpenSubject = "";
     let currentOpenSubSubject = "";
-    let isPageActive = "home"; // "home", "subject", "subSubject"
+    let isPageActive = "home"; 
 
-    // 🌐 इंटरनेट से डेटा लोड करने वाला फंक्शन (सिर्फ फर्स्ट टाइम लोडिंग स्क्रीन के साथ)
     async function loadData() {
         try {
             document.getElementById("loadingScreen").style.display = "flex";
@@ -194,37 +217,29 @@
         }
     }
 
-    // 🕵️ साइलेंट बैकग्राउंड अपडेट (यह यूज़र को बिना बताए 10 सेकंड में डेटा चेक करेगा)
     async function silentBackgroundUpdate() {
         try {
             const response = await fetch(SCRIPT_URL);
             const storedData = await response.json();
             
-            // अगर पुराना डेटा और नया डेटा अलग है, तभी UI अपडेट करो
             if (JSON.stringify(storedData) !== JSON.stringify(appData)) {
                 appData = storedData;
                 if(!appData.customSections) appData.customSections = {};
                 DEFAULT_SECTIONS.forEach(s => { if(s === "GKGS") { if(!appData[s]) appData[s] = {}; } else if(!appData[s]) appData[s] = []; });
                 
-                // होम पेज की ग्रिड और लिस्ट को साइलेंटली अपडेट करो
                 fullRefresh();
                 
-                // अगर स्टूडेंट किसी फोल्डर के अंदर है, तो उसे बंद किए बिना उसी फोल्डर को रिफ्रेश कर दो
                 if (isPageActive === "subject" && currentOpenSubject) {
                     openSubject(currentOpenSubject);
                 } else if (isPageActive === "subSubject" && currentOpenSubject && currentOpenSubSubject) {
                     openSubSubject(currentOpenSubject, currentOpenSubSubject);
                 }
             }
-        } catch (error) {
-            // बैकग्राउंड में कोई एरर आये तो उसे इग्नोर करो, यूज़र को डिस्टर्ब मत करो
-        }
+        } catch (error) {}
     }
 
-    // 🕒 हर 10 सेकंड में बैकग्राउंड अपडेट फंक्शन चलाओ
     setInterval(silentBackgroundUpdate, 10000);
 
-    // 🌐 इंटरनेट (Google Sheet) पर एडमिन द्वारा डेटा सेव करने वाला फंक्शन
     async function saveData() {
         document.getElementById("loadingScreen").style.display = "flex";
         document.getElementById("loadingText").innerText = "अपडेट सेव हो रहा है...";
@@ -325,7 +340,18 @@
             if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">कोई आइटम नहीं</div>`;
             else {
                 let h = "";
-                chapters.forEach(ch => { h += `<div class="chapter-link-card"><span class="chapter-link-text">${iconHtml} <strong>${escapeHtml(ch.name)}</strong></span><div class="chapter-link-actions"><button class="open-pdf-btn-small" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>${isAdminLoggedIn ? `<button class="delete-chapter-btn show-delete" data-section="${secKey}" data-id="${ch.id}"> हटाएँ</button>` : ''}</div></div>`; });
+                chapters.forEach(ch => { 
+                    h += `<div class="chapter-link-card">
+                        <div class="chapter-link-text">
+                            <span>${iconHtml}</span> 
+                            <strong>${escapeHtml(ch.name)}</strong>
+                        </div>
+                        <div class="chapter-link-actions">
+                            <button class="open-pdf-btn-small" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>
+                            ${isAdminLoggedIn ? `<button class="delete-chapter-btn show-delete" data-section="${secKey}" data-id="${ch.id}"> हटाएँ</button>` : ''}
+                        </div>
+                    </div>`; 
+                });
                 cont.innerHTML = h;
                 attachOpenButtons(cont);
             }
@@ -356,7 +382,18 @@
         if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">कोई आइटम नहीं</div>`;
         else {
             let h = "";
-            chapters.forEach(ch => { h += `<div class="chapter-link-card"><span class="chapter-link-text">${iconHtml} <strong>${escapeHtml(ch.name)}</strong></span><div class="chapter-link-actions"><button class="open-pdf-btn-small" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>${isAdminLoggedIn ? `<button class="delete-chapter-btn show-delete" data-parent="${parent}" data-subname="${subName}" data-id="${ch.id}"> हटाएँ</button>` : ''}</div></div>`; });
+            chapters.forEach(ch => { 
+                h += `<div class="chapter-link-card">
+                    <div class="chapter-link-text">
+                        <span>${iconHtml}</span> 
+                        <strong>${escapeHtml(ch.name)}</strong>
+                    </div>
+                    <div class="chapter-link-actions">
+                        <button class="open-pdf-btn-small" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>
+                        ${isAdminLoggedIn ? `<button class="delete-chapter-btn show-delete" data-parent="${parent}" data-subname="${subName}" data-id="${ch.id}"> हटाएँ</button>` : ''}
+                    </div>
+                </div>`; 
+            });
             cont.innerHTML = h;
             attachOpenButtons(cont);
         }
@@ -381,7 +418,16 @@
         let h = "";
         all.forEach(ch => {
             const del = isAdminLoggedIn ? `<button class="delete-compact-btn show-delete" data-id="${ch.id}" data-seckey="${ch.sKey}" data-subname="${ch.subName || ''}"> हटाएँ</button>` : '';
-            h += `<div class="compact-chapter-item"><div class="compact-item-text"><span class="compact-badge">${escapeHtml(ch.label)}</span> <strong>${escapeHtml(ch.name)}</strong></div><div class="compact-item-actions"><button class="open-pdf-btn" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button> ${del}</div></div>`;
+            h += `<div class="compact-chapter-item">
+                    <div class="compact-item-text">
+                        <span class="compact-badge">${escapeHtml(ch.label)}</span> 
+                        <strong>${escapeHtml(ch.name)}</strong>
+                    </div>
+                    <div class="compact-item-actions">
+                        <button class="open-pdf-btn" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button> 
+                        ${del}
+                    </div>
+                  </div>`;
         });
         container.innerHTML = h;
         document.querySelectorAll(".open-pdf-btn").forEach(btn => btn.addEventListener("click", () => window.open(btn.getAttribute("data-url"), "_blank")));
@@ -476,7 +522,6 @@
     
     document.getElementById("logoutAdminBtn")?.addEventListener("click", () => { isAdminLoggedIn=false; fullRefresh(); alert("लॉगआउट"); clearLoginFields(); });
     
-    // Back Buttons (स्टेट रिसेट करने के लिए)
     document.getElementById("backHomeBtn").addEventListener("click", () => { document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
     document.getElementById("bottomBackHomeBtn").addEventListener("click", () => { document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
     
@@ -488,7 +533,6 @@
     document.getElementById("createSectionBtn").addEventListener("click", createNewSection);
     document.getElementById("adminSubjectSelect").addEventListener("change", toggleGkField);
     
-    // जब पेज खुलेगा तो सबसे पहले इंटरनेट से डेटा लोड होगा
     loadData(); 
 </script>
 </body>
