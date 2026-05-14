@@ -69,16 +69,16 @@
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; }
 
-        /* ========= COMPACT MASTER LIST (SMART WRAP & AUTO-SCROLL) ========= */
+        /* ========= COMPACT MASTER LIST (SHUFFLE ANIMATION) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
         .compact-list { 
             display: flex; flex-direction: column; gap: 0.8rem; 
             max-height: 380px; overflow-y: auto; scroll-behavior: smooth;
-            padding-right: 5px; /* For scrollbar */
+            padding-right: 5px; 
+            transition: opacity 0.3s ease-in-out; /* Smooth Fade Transition */
         }
-        /* Custom Scrollbar for sleek look */
         .compact-list::-webkit-scrollbar { width: 6px; }
         .compact-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         
@@ -88,18 +88,13 @@
             gap: 12px; border-left: 4px solid #f97316; border-radius: 4px; color: white; 
         }
         
-        /* स्मार्ट रैपिंग लॉजिक (छोटा नाम बगल में, बड़ा नाम नीचे) */
-        .compact-item-text { 
-            display: block; flex: 1; min-width: 0; line-height: 1.6;
-        }
+        .compact-item-text { display: block; flex: 1; min-width: 0; line-height: 1.6; }
         .compact-badge { 
             background: #ffedd5; padding: 3px 8px; font-weight: 700; color: #b45309; 
-            font-size: 0.75rem; border-radius: 4px; 
-            display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px;
+            font-size: 0.75rem; border-radius: 4px; display: inline-block; 
+            vertical-align: middle; margin-right: 8px; margin-bottom: 4px;
         }
-        .compact-item-text strong { 
-            color: white; font-size: 0.95rem; display: inline; vertical-align: middle; word-break: break-word;
-        }
+        .compact-item-text strong { color: white; font-size: 0.95rem; display: inline; vertical-align: middle; word-break: break-word; }
         
         .compact-item-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; justify-content: center; align-items: center; }
         .open-pdf-btn, .open-pdf-btn-small { background: #f97316; border: none; padding: 8px 16px; color: white; font-weight: bold; cursor: pointer; border-radius: 4px; transition: 0.2s; white-space: nowrap; width: 100%; text-align: center;}
@@ -115,15 +110,10 @@
         .back-home-btn, .bottom-back-btn { background: #334155; color: white; border: none; border-radius: 4px; padding: 8px 20px; font-weight: bold; cursor: pointer; }
         .subject-title-lg { font-size: 1.8rem; color: #ffb347; font-weight: 800; }
         
-        .chapter-link-card { 
-            background: #1e293b; padding: 0.8rem 1rem; display: flex; 
-            justify-content: space-between; align-items: center; 
-            border-left: 4px solid #f97316; border-radius: 4px; margin-bottom: 12px; color: white; gap: 12px; 
-        }
+        .chapter-link-card { background: #1e293b; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #f97316; border-radius: 4px; margin-bottom: 12px; color: white; gap: 12px; }
         .chapter-link-text { flex: 1; min-width: 0; display: block; line-height: 1.6; }
         .chapter-link-text span { display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px; font-size: 1.1rem; }
         .chapter-link-text strong { display: inline; vertical-align: middle; word-break: break-word; font-size: 0.95rem; }
-        
         .chapter-link-actions { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         .sub-subject-card-item { background: #2d3a4b; padding: 0.8rem; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #f97316; border-radius: 4px; color: white; font-weight: bold; display: flex; justify-content: space-between;}
 
@@ -233,9 +223,9 @@
     let currentOpenSubject = "";
     let currentOpenSubSubject = "";
     let isPageActive = "home"; 
-    let allGlobalItems = []; // सर्च के लिए सारी लिस्ट
+    let allGlobalItems = []; 
     
-    // 📖 HINGLISH TO HINDI DICTIONARY (देसी डिक्शनरी जुगाड़)
+    // 📖 HINGLISH TO HINDI DICTIONARY
     const hinglishDict = {
         "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स",
         "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान",
@@ -243,26 +233,59 @@
         "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक"
     };
 
-    // 🚀 AUTO-SCROLL LOGIC
+    // 🚀 NEW SHUFFLE LOGIC (क्रम बदलने वाला एनीमेशन)
     const compactListEl = document.getElementById("masterCompactList");
-    let isHoveringList = false;
-    
-    compactListEl.addEventListener("mouseenter", () => isHoveringList = true);
-    compactListEl.addEventListener("mouseleave", () => isHoveringList = false);
-    compactListEl.addEventListener("touchstart", () => isHoveringList = true);
-    compactListEl.addEventListener("touchend", () => { setTimeout(() => isHoveringList = false, 1500); });
-    
-    setInterval(() => {
-        // अगर सर्च बार में कुछ लिखा है तो स्क्रॉल मत करो
-        if(document.getElementById("globalSearchInput").value.trim() !== "") return;
+    let shuffleInterval;
+    let idleTimeout;
+    let isListPaused = false;
+
+    function triggerShuffle() {
+        if(isListPaused || document.getElementById("globalSearchInput").value.trim() !== "") return;
         
-        if (!isHoveringList && compactListEl.scrollHeight > compactListEl.clientHeight) {
-            compactListEl.scrollTop += 1; // 1px speed
-            if (Math.ceil(compactListEl.scrollTop + compactListEl.clientHeight) >= compactListEl.scrollHeight) {
-                compactListEl.scrollTop = 0; // लूप खत्म होने पर वापस ऊपर
-            }
+        if(compactListEl.children.length > 1) {
+            // हल्का सा फेड आउट इफ़ेक्ट
+            compactListEl.style.opacity = "0.5";
+            
+            setTimeout(() => {
+                let items = Array.from(compactListEl.children);
+                
+                // Fisher-Yates Random Shuffle
+                for (let i = items.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [items[i], items[j]] = [items[j], items[i]];
+                }
+                
+                compactListEl.innerHTML = "";
+                items.forEach(item => compactListEl.appendChild(item));
+                
+                // वापस फेड इन
+                compactListEl.style.opacity = "1";
+            }, 200); // 200ms delay for smooth fade
         }
-    }, 40); // स्पीड कंट्रोल (40ms)
+    }
+
+    function startShuffleTimer() {
+        clearInterval(shuffleInterval);
+        shuffleInterval = setInterval(triggerShuffle, 3000); // हर 3 सेकंड में शफल
+    }
+
+    function pauseShuffleTemporarily() {
+        isListPaused = true;
+        clearTimeout(idleTimeout);
+        idleTimeout = setTimeout(() => {
+            isListPaused = false; // 5 सेकंड तक कुछ न करने पर वापस चालू
+        }, 5000); 
+    }
+
+    // इवेंट लिसनर्स (यूजर के टच या क्लिक करते ही एनीमेशन रुकेगा)
+    compactListEl.addEventListener("touchstart", pauseShuffleTemporarily);
+    compactListEl.addEventListener("mousemove", pauseShuffleTemporarily); 
+    compactListEl.addEventListener("click", pauseShuffleTemporarily);
+    compactListEl.addEventListener("scroll", pauseShuffleTemporarily);
+    
+    // शफल टाइमर चालू करें
+    startShuffleTimer();
+
 
     async function loadData() {
         try {
@@ -462,7 +485,6 @@
         // Hinglish Search Logic
         if(searchQuery.trim() !== "") {
             let q = searchQuery.toLowerCase();
-            // डिक्शनरी से वर्ड ऐड करो (ताकि hindi लिखने पर हिंदी भी सर्च हो)
             let extendedQuery = q;
             for(let key in hinglishDict) { if(q.includes(key)) extendedQuery += " " + hinglishDict[key]; }
             
@@ -470,7 +492,6 @@
             
             filteredItems = allGlobalItems.filter(item => {
                 let targetText = (item.name + " " + item.label).toLowerCase();
-                // अगर कोई भी वर्ड मैच करता है, तो दिखाओ
                 return searchParts.some(part => targetText.includes(part));
             });
             document.getElementById("listTitle").innerHTML = `<i class="fas fa-search"></i> सर्च रिज़ल्ट (${filteredItems.length})`;
