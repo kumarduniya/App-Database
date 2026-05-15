@@ -16,7 +16,7 @@
         .loader-spinner { border: 5px solid #334155; border-top: 5px solid #f97316; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* ========= HEADER (Centered & Premium) ========= */
+        /* ========= HEADER ========= */
         .hero-section { 
             display: flex; justify-content: space-between; align-items: center; 
             background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); 
@@ -54,7 +54,7 @@
         @media (max-width: 450px) { .subjects-grid { grid-template-columns: repeat(3, 1fr); gap: 1.2rem; } }
         .subject-card { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s ease; width: 100%; }
         .subject-card:hover { transform: translateY(-5px); }
-        .app-icon-box { width: 90px; height: 90px; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 2.8rem; color: white; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3); position: relative; }
+        .app-icon-box { width: 90px; height: 90px; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 2.8rem; color: white; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
 
         .app-icon-box[data-section="Hindi"] { background: linear-gradient(135deg, #1e3c72, #2a5298); }
         .app-icon-box[data-section="Math"] { background: linear-gradient(135deg, #0f5c3f, #1e8f5e); }
@@ -67,9 +67,9 @@
         .subject-card.custom-link .app-icon-box { background: linear-gradient(135deg, #6366f1, #4338ca); }
 
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
-        .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; }
+        .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
 
-        /* ========= COMPACT MASTER LIST (SHUFFLE ANIMATION) ========= */
+        /* ========= COMPACT MASTER LIST (SMOOTH FADE ANIMATION) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
@@ -77,7 +77,7 @@
             display: flex; flex-direction: column; gap: 0.8rem; 
             max-height: 380px; overflow-y: auto; scroll-behavior: smooth;
             padding-right: 5px; 
-            transition: opacity 0.3s ease-in-out; /* Smooth Fade Transition */
+            transition: opacity 0.8s ease-in-out; /* एकदम स्मूथ और धीमा फेड इफ़ेक्ट */
         }
         .compact-list::-webkit-scrollbar { width: 6px; }
         .compact-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
@@ -198,6 +198,12 @@
                         <option value="nested">सब-सेक्शन वाला (फ़ोल्डर के अंदर)</option>
                     </select>
                 </div>
+                <div class="form-group" style="width: 100%;">
+                    <input type="text" id="newSectionIcon" placeholder="आइकॉन क्लास (उदा: fas fa-star) या इमेज URL पेस्ट करें">
+                    <small style="color:#94a3b8; font-size:13px; display:block; margin-top:4px;">
+                        👉 आइकॉन चुनने के लिए <a href="https://fontawesome.com/icons?m=free" target="_blank" style="color:#10b981; text-decoration:none; font-weight:bold;">यहाँ क्लिक करें</a> और क्लास कॉपी करें, या किसी फोटो का डायरेक्ट लिंक पेस्ट करें।
+                    </small>
+                </div>
                 <button class="btn-primary" id="createSectionBtn"><i class="fas fa-plus-circle"></i> बनाएं</button>
             </div>
             <h4>🗑️ सेक्शन प्रबंधन</h4>
@@ -225,7 +231,6 @@
     let isPageActive = "home"; 
     let allGlobalItems = []; 
     
-    // 📖 HINGLISH TO HINDI DICTIONARY
     const hinglishDict = {
         "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स",
         "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान",
@@ -233,7 +238,7 @@
         "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक"
     };
 
-    // 🚀 NEW SHUFFLE LOGIC (क्रम बदलने वाला एनीमेशन)
+    // 🚀 NEW SHUFFLE LOGIC (बहुत स्मूथ फेड इफ़ेक्ट के साथ)
     const compactListEl = document.getElementById("masterCompactList");
     let shuffleInterval;
     let idleTimeout;
@@ -243,13 +248,12 @@
         if(isListPaused || document.getElementById("globalSearchInput").value.trim() !== "") return;
         
         if(compactListEl.children.length > 1) {
-            // हल्का सा फेड आउट इफ़ेक्ट
-            compactListEl.style.opacity = "0.5";
+            // हल्का-हल्का गायब होना (Fade out)
+            compactListEl.style.opacity = "0";
             
+            // 800ms बाद जब पूरा गायब हो जाए, तब लिस्ट शफल करो
             setTimeout(() => {
                 let items = Array.from(compactListEl.children);
-                
-                // Fisher-Yates Random Shuffle
                 for (let i = items.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [items[i], items[j]] = [items[j], items[i]];
@@ -258,32 +262,30 @@
                 compactListEl.innerHTML = "";
                 items.forEach(item => compactListEl.appendChild(item));
                 
-                // वापस फेड इन
+                // हल्का-हल्का वापस आना (Fade in)
                 compactListEl.style.opacity = "1";
-            }, 200); // 200ms delay for smooth fade
+            }, 800); 
         }
     }
 
     function startShuffleTimer() {
         clearInterval(shuffleInterval);
-        shuffleInterval = setInterval(triggerShuffle, 3000); // हर 3 सेकंड में शफल
+        shuffleInterval = setInterval(triggerShuffle, 6000); // 🕒 हर 6 सेकंड में शफल
     }
 
     function pauseShuffleTemporarily() {
         isListPaused = true;
         clearTimeout(idleTimeout);
         idleTimeout = setTimeout(() => {
-            isListPaused = false; // 5 सेकंड तक कुछ न करने पर वापस चालू
+            isListPaused = false; 
         }, 5000); 
     }
 
-    // इवेंट लिसनर्स (यूजर के टच या क्लिक करते ही एनीमेशन रुकेगा)
     compactListEl.addEventListener("touchstart", pauseShuffleTemporarily);
     compactListEl.addEventListener("mousemove", pauseShuffleTemporarily); 
     compactListEl.addEventListener("click", pauseShuffleTemporarily);
     compactListEl.addEventListener("scroll", pauseShuffleTemporarily);
     
-    // शफल टाइमर चालू करें
     startShuffleTimer();
 
 
@@ -342,7 +344,13 @@
     function getAllSections() {
         let sections = [];
         DEFAULT_SECTIONS.forEach(s => sections.push({ key: s, isDefault: true, contentType: "pdf" }));
-        for(let k in appData.customSections) sections.push({ key: k, isDefault: false, type: appData.customSections[k].type, contentType: appData.customSections[k].contentType || "pdf" });
+        for(let k in appData.customSections) {
+            sections.push({ 
+                key: k, isDefault: false, type: appData.customSections[k].type, 
+                contentType: appData.customSections[k].contentType || "pdf",
+                customIcon: appData.customSections[k].customIcon || "" // 🆕 कस्टम आइकॉन 
+            });
+        }
         return sections;
     }
     
@@ -365,20 +373,32 @@
         let html = "";
         getAllSections().forEach(s => {
             let count = getTotalChapters(s.key);
-            let icon = "fas fa-folder";
+            let iconClass = "fas fa-folder";
             
-            if(s.key === "Hindi") icon = "fas fa-language";
-            else if(s.key === "Math") icon = "fas fa-calculator";
-            else if(s.key === "GKGS") icon = "fas fa-globe-asia";
-            else if(s.key === "Reasoning") icon = "fas fa-brain";
-            else if(s.key === "CurrentAffairs") icon = "fas fa-newspaper";
-            else if(s.contentType === "video") icon = "fas fa-play"; 
-            else if(s.contentType === "test") icon = "fas fa-laptop-code"; 
-            else if(s.contentType === "link") icon = "fas fa-link"; 
+            if(s.key === "Hindi") iconClass = "fas fa-language";
+            else if(s.key === "Math") iconClass = "fas fa-calculator";
+            else if(s.key === "GKGS") iconClass = "fas fa-globe-asia";
+            else if(s.key === "Reasoning") iconClass = "fas fa-brain";
+            else if(s.key === "CurrentAffairs") iconClass = "fas fa-newspaper";
+            else if(s.contentType === "video") iconClass = "fas fa-play"; 
+            else if(s.contentType === "test") iconClass = "fas fa-laptop-code"; 
+            else if(s.contentType === "link") iconClass = "fas fa-link"; 
+            
+            // 🆕 कस्टम आइकॉन दिखाने का लॉजिक
+            let iconHtml = `<i class="${iconClass}"></i>`;
+            if(!s.isDefault && s.customIcon && s.customIcon.trim() !== "") {
+                if(s.customIcon.startsWith("http")) {
+                    // अगर इमेज लिंक है तो इमेज दिखाओ
+                    iconHtml = `<img src="${escapeHtml(s.customIcon)}" style="width: 55px; height: 55px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">`;
+                } else {
+                    // अगर FontAwesome क्लास है तो आइकॉन दिखाओ
+                    iconHtml = `<i class="${escapeHtml(s.customIcon)}"></i>`;
+                }
+            }
             
             let customClass = !s.isDefault ? (s.contentType === 'video' ? 'custom-video' : s.contentType === 'test' ? 'custom-test' : s.contentType === 'link' ? 'custom-link' : 'custom-section') : '';
             
-            html += `<div class="subject-card ${customClass}" data-section="${s.key}"><div class="app-icon-box" data-section="${s.key}"><i class="${icon}"></i><div class="chapter-count-badge">${count}</div></div><div class="subject-name">${s.key}</div></div>`;
+            html += `<div class="subject-card ${customClass}" data-section="${s.key}"><div class="app-icon-box" data-section="${s.key}">${iconHtml}<div class="chapter-count-badge">${count}</div></div><div class="subject-name">${s.key}</div></div>`;
         });
         grid.innerHTML = html;
         document.querySelectorAll(".subject-card").forEach(c => c.addEventListener("click", () => openSubject(c.getAttribute("data-section"))));
@@ -482,7 +502,6 @@
 
         let filteredItems = allGlobalItems;
         
-        // Hinglish Search Logic
         if(searchQuery.trim() !== "") {
             let q = searchQuery.toLowerCase();
             let extendedQuery = q;
@@ -570,11 +589,15 @@
         
         let type = document.getElementById("newSectionType").value;
         let cType = document.getElementById("newSectionContentType").value; 
+        let cIcon = document.getElementById("newSectionIcon").value.trim(); // 🆕 कस्टम आइकॉन उठाओ
         
-        if(type === "normal") appData.customSections[name] = { type: "normal", contentType: cType, data: [] };
-        else appData.customSections[name] = { type: "nested", contentType: cType, data: {} };
+        if(type === "normal") appData.customSections[name] = { type: "normal", contentType: cType, customIcon: cIcon, data: [] };
+        else appData.customSections[name] = { type: "nested", contentType: cType, customIcon: cIcon, data: {} };
         
-        await saveData(); fullRefresh(); document.getElementById("newSectionName").value = ""; alert(`सेक्शन "${name}" लाइव बन गया`);
+        await saveData(); fullRefresh(); 
+        document.getElementById("newSectionName").value = ""; 
+        document.getElementById("newSectionIcon").value = ""; 
+        alert(`सेक्शन "${name}" लाइव बन गया`);
     }
     
     function renderManageSections() {
