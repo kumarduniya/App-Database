@@ -66,34 +66,29 @@
         .subject-card.custom-test .app-icon-box { background: linear-gradient(135deg, #10b981, #047857); }
         .subject-card.custom-link .app-icon-box { background: linear-gradient(135deg, #6366f1, #4338ca); }
         .subject-card.custom-book .app-icon-box { background: linear-gradient(135deg, #3b82f6, #1d4ed8); } 
-        /* 🔒 लॉक वाले फोल्डर का कलर अलग */
         .subject-card.is-locked .app-icon-box { background: linear-gradient(135deg, #475569, #0f172a); border: 2px solid #ef4444;}
 
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
         .lock-badge { position: absolute; bottom: -6px; left: -6px; background: #1e293b; padding: 4px; font-size: 0.8rem; border-radius: 50%; color: #ffd966; border: 2px solid #fff3e0;}
 
-        /* ========= COMPACT MASTER LIST (CHAIN TICKER ANIMATION) ========= */
+        /* ========= COMPACT MASTER LIST (AUTO SCROLL & MANUAL SCROLL) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
-        .compact-list-viewport {
-            max-height: 380px; overflow: hidden; position: relative; padding-right: 5px;
+        .compact-list { 
+            display: flex; flex-direction: column; gap: 0.8rem; 
+            max-height: 380px; overflow-y: auto; scroll-behavior: auto; /* Changed for smooth JS scroll */
+            padding-right: 5px; 
         }
-        
-        @keyframes chainTicker {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-50%); }
-        }
-        
-        .ticker-wrapper { display: flex; flex-direction: column; gap: 0.8rem; }
-        .ticker-wrapper.animate { animation: chainTicker linear infinite; }
-        .compact-list-viewport.paused .ticker-wrapper { animation-play-state: paused !important; }
+        .compact-list::-webkit-scrollbar { width: 6px; }
+        .compact-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
 
         .compact-chapter-item { 
             background: #0f172a; padding: 0.8rem 1rem; display: flex; 
             justify-content: space-between; align-items: center; 
             gap: 12px; border-left: 4px solid #f97316; border-radius: 4px; color: white; 
+            flex-shrink: 0; /* Ensures items don't squash */
         }
         
         .compact-item-text { display: block; flex: 1; min-width: 0; line-height: 1.6; }
@@ -131,10 +126,10 @@
         .btn-primary { background: #f97316; border: none; border-radius: 4px; padding: 10px 24px; font-weight: bold; cursor: pointer; color: white; width:100%;}
         .section-manager { margin-top: 1.5rem; border-top: 1px solid #475569; padding-top: 1rem; }
 
-        /* ========= LOGIN MODAL ========= */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.2s; }
+        /* ========= MODALS (LOGIN & PASSWORD) ========= */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.2s; }
         .modal.active { visibility: visible; opacity: 1; }
-        .login-box { background: #1e293b; padding: 2rem; max-width: 380px; width: 90%; border-left: 6px solid #f97316; border-radius: 8px; text-align: center; color: white;}
+        .login-box { background: #1e293b; padding: 2.5rem 2rem; max-width: 380px; width: 90%; border-left: 6px solid #f97316; border-radius: 8px; text-align: center; color: white; box-shadow: 0 15px 30px rgba(0,0,0,0.5);}
         .login-box input { background: #334155; border: none; border-radius: 4px; padding: 12px; width: 100%; margin: 10px 0; color: white; }
         
         .site-footer { margin-top: 2rem; background: #0f172a; text-align: center; padding: 1rem; border-radius: 8px; color: #94a3b8; border-top: 2px solid #f97316; font-size: 0.85rem; }
@@ -167,7 +162,7 @@
     
     <div class="master-chapters-section">
         <div class="master-title" id="listTitle"><i class="fas fa-layer-group"></i> सभी लिस्ट (संक्षिप्त सूची)</div>
-        <div id="masterCompactList" class="compact-list-viewport"></div>
+        <div id="masterCompactList" class="compact-list"></div>
     </div>
     
     <div class="site-footer">
@@ -211,9 +206,9 @@
                     <input type="text" id="newSectionPassword" placeholder="पासवर्ड (प्राइवेट रखने के लिए, वर्ना खाली छोड़ें)">
                 </div>
                 <div class="form-group" style="width: 100%;">
-                    <input type="text" id="newSectionIcon" placeholder="आइकॉन क्लास या Image URL पेस्ट करें">
+                    <input type="text" id="newSectionIcon" placeholder="आइकॉन क्लास या डायरेक्ट Image URL पेस्ट करें">
                     <small style="color:#94a3b8; font-size:13px; display:block; margin-top:4px;">
-                        👉 <i>जुगाड़: अगर Postimg.cc की लिंक है, तो सीधा डाल दो, सिस्टम अपने आप सही कर लेगा!</i>
+                        👉 <i>जुगाड़: फोटो का डायरेक्ट (.png/.jpg) लिंक डालें। वेबसाइट का लिंक नहीं।</i>
                     </small>
                 </div>
                 <button class="btn-primary" id="createSectionBtn"><i class="fas fa-folder-plus"></i> फोल्डर बनाएं</button>
@@ -253,6 +248,24 @@
     </div>
 </div>
 
+<div id="passwordModal" class="modal">
+    <div class="login-box" style="border-left-color: #ef4444;">
+        <i class="fas fa-lock" style="font-size: 2.5rem; color:#ef4444; margin-bottom: 10px;"></i>
+        <h3 style="color: white; margin-bottom: 5px;">सुरक्षित फोल्डर</h3>
+        <p id="passwordModalSubject" style="color: #94a3b8; margin-bottom: 15px; font-size: 0.9rem;"></p>
+        
+        <div style="position: relative; width: 100%; margin: 10px 0;">
+            <input type="password" id="folderPasswordInput" placeholder="पासवर्ड डालें..." style="width: 100%; padding: 12px; padding-right: 40px; background: #334155; border: none; border-radius: 4px; color: white; outline: none;">
+            <i class="fas fa-eye" id="togglePasswordEye" style="position: absolute; right: 15px; top: 14px; color: #94a3b8; cursor: pointer; font-size: 1.1rem;"></i>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn-primary" id="cancelPasswordBtn" style="background: #475569; width: 50%;">रद्द करें</button>
+            <button class="btn-primary" id="submitPasswordBtn" style="width: 50%; background: #10b981;">खोलें</button>
+        </div>
+    </div>
+</div>
+
 <script>
     if (window.location.hash) history.replaceState(null, null, window.location.pathname);
 
@@ -270,6 +283,7 @@
     let isPageActive = "home"; 
     let allGlobalItems = []; 
     let unlockedSession = {}; // Private Folders Temporarily Unlocked
+    let pendingSubjectToOpen = null;
     
     // EDIT MODE VARIABLES
     let editMode = false;
@@ -279,16 +293,85 @@
         "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स", "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान", "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास", "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक", "book": "किताब", "document": "डॉक्यूमेंट", "my": "माय"
     };
 
-    // 🚀 CHAIN TICKER LOGIC
-    const viewportEl = document.getElementById("masterCompactList");
-    function toggleTickerPause(state) {
-        if(state) viewportEl.classList.add("paused");
-        else if(document.getElementById("globalSearchInput").value.trim() === "") viewportEl.classList.remove("paused");
+    // 🚀 NEW: MANUAL SCROLL + CHAIN TICKER LOGIC (स्मूथ स्क्रॉलिंग)
+    const compactListEl = document.getElementById("masterCompactList");
+    let autoScrollTimer;
+    let isUserScrolling = false;
+    let resumeScrollTimeout;
+
+    function startSmoothAutoScroll() {
+        clearInterval(autoScrollTimer);
+        autoScrollTimer = setInterval(() => {
+            // अगर यूजर कुछ नहीं कर रहा है और सर्च बॉक्स खाली है, तब एनीमेशन चलेगा
+            if(!isUserScrolling && document.getElementById("globalSearchInput").value.trim() === "") {
+                compactListEl.scrollTop += 1;
+                // अगर लिस्ट के एंड में पहुँच गए, तो वापस टॉप से शुरू करो (Endless Loop Effect)
+                if(Math.ceil(compactListEl.scrollTop + compactListEl.clientHeight) >= compactListEl.scrollHeight) {
+                    compactListEl.scrollTop = 0;
+                }
+            }
+        }, 35); // 35ms स्पीड (मस्त और स्लो गियर की तरह)
     }
-    viewportEl.addEventListener("mouseenter", () => toggleTickerPause(true));
-    viewportEl.addEventListener("mouseleave", () => toggleTickerPause(false));
-    viewportEl.addEventListener("touchstart", () => toggleTickerPause(true));
-    viewportEl.addEventListener("touchend", () => setTimeout(() => toggleTickerPause(false), 2000));
+
+    function handleUserInteraction() {
+        isUserScrolling = true;
+        clearTimeout(resumeScrollTimeout);
+    }
+
+    function handleUserInteractionEnd() {
+        clearTimeout(resumeScrollTimeout);
+        resumeScrollTimeout = setTimeout(() => {
+            isUserScrolling = false;
+        }, 4000); // 4 सेकंड बाद एनीमेशन वापस चालू
+    }
+
+    // जब यूजर टच करे या माउस से स्क्रॉल करे तो एनीमेशन रुके
+    compactListEl.addEventListener("touchstart", handleUserInteraction);
+    compactListEl.addEventListener("mousedown", handleUserInteraction);
+    compactListEl.addEventListener("wheel", handleUserInteraction);
+    
+    // जब यूजर उंगली हटा ले तो 4 सेकंड बाद वापस चालू हो जाए
+    compactListEl.addEventListener("touchend", handleUserInteractionEnd);
+    compactListEl.addEventListener("mouseup", handleUserInteractionEnd);
+    compactListEl.addEventListener("mouseleave", handleUserInteractionEnd);
+
+    startSmoothAutoScroll();
+
+
+    // 👁️ PASSWORD EYE TOGGLE
+    document.getElementById("togglePasswordEye").addEventListener("click", function() {
+        let input = document.getElementById("folderPasswordInput");
+        if (input.type === "password") {
+            input.type = "text";
+            this.classList.remove("fa-eye");
+            this.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            this.classList.remove("fa-eye-slash");
+            this.classList.add("fa-eye");
+        }
+    });
+
+    // 🔓 PASSWORD MODAL BUTTONS
+    document.getElementById("cancelPasswordBtn").addEventListener("click", () => {
+        document.getElementById("passwordModal").classList.remove("active");
+        pendingSubjectToOpen = null;
+        history.back(); // Remove #password from URL
+    });
+
+    document.getElementById("submitPasswordBtn").addEventListener("click", () => {
+        let pass = document.getElementById("folderPasswordInput").value;
+        const secData = getSectionData(pendingSubjectToOpen);
+        if(pass === secData.password) {
+            unlockedSession[pendingSubjectToOpen] = true;
+            document.getElementById("passwordModal").classList.remove("active");
+            history.back(); // Remove #password from URL
+            // अब असली में फोल्डर खोलो
+            openSubject(pendingSubjectToOpen);
+        } else {
+            alert("❌ गलत पासवर्ड! कृपया दोबारा प्रयास करें।");
+        }
+    });
 
 
     async function loadData() {
@@ -382,10 +465,11 @@
             else if(s.contentType === "link") iconClass = "fas fa-link"; 
             else if(s.contentType === "book") iconClass = "fas fa-book"; 
             
+            // 🖼️ CUSTOM IMAGE LOGIC FIX (45x45px size limit inside box)
             let iconHtml = `<i class="${iconClass}"></i>`;
             if(!s.isDefault && s.customIcon && s.customIcon.trim() !== "") {
                 if(s.customIcon.startsWith("http")) {
-                    iconHtml = `<img src="${escapeHtml(s.customIcon)}" style="width: 55px; height: 55px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));" onerror="this.outerHTML='<i class=\\'fas fa-image\\' style=\\'font-size: 2.5rem;\\'></i>'">`;
+                    iconHtml = `<img src="${escapeHtml(s.customIcon)}" style="width: 45px; height: 45px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));" onerror="this.outerHTML='<i class=\\'fas fa-image\\' style=\\'font-size: 2.8rem;\\'></i>'">`;
                 } else {
                     iconHtml = `<i class="${escapeHtml(s.customIcon)}"></i>`;
                 }
@@ -413,14 +497,18 @@
     function openSubject(secKey, isSilentUpdate = false) {
         const secData = getSectionData(secKey);
         
-        // 🔒 Password Protection Check
+        // 🔒 Password Protection Trigger
         if(secData.isLocked && !unlockedSession[secKey] && !isSilentUpdate) {
-            let pass = prompt(`🔒 "${secKey}" प्राइवेट है। कृपया पासवर्ड डालें:`);
-            if(pass !== secData.password) {
-                if(pass !== null) alert("गलत पासवर्ड!");
-                return;
-            }
-            unlockedSession[secKey] = true;
+            pendingSubjectToOpen = secKey;
+            document.getElementById("passwordModalSubject").innerText = `"${secKey}" एक सुरक्षित फोल्डर है`;
+            document.getElementById("folderPasswordInput").value = "";
+            document.getElementById("folderPasswordInput").type = "password";
+            document.getElementById("togglePasswordEye").classList.remove("fa-eye-slash");
+            document.getElementById("togglePasswordEye").classList.add("fa-eye");
+            
+            window.location.hash = "password";
+            document.getElementById("passwordModal").classList.add("active");
+            return;
         }
 
         currentOpenSubject = secKey; isPageActive = "subject";
@@ -430,7 +518,7 @@
         const iconHtml = getIconHTML(contentType);
         const cont = document.getElementById("subjectDetailContent");
 
-        let lockBtnHtml = secData.isLocked ? `<button class="lock-close-btn" onclick="lockFolder('${secKey}')"><i class="fas fa-lock"></i> क्लोज / लॉक</button>` : '';
+        let lockBtnHtml = secData.isLocked ? `<button class="lock-close-btn" onclick="lockFolder('${secKey}')"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
         
         if(type === "nested") {
             const subs = Object.keys(data);
@@ -470,7 +558,7 @@
     function lockFolder(secKey) {
         delete unlockedSession[secKey];
         history.back(); // Go Home
-        setTimeout(() => alert("फोल्डर सुरक्षित रूप से लॉक हो गया है!"), 300);
+        setTimeout(() => alert("🔒 फोल्डर सुरक्षित रूप से लॉक हो गया है!"), 300);
     }
 
     function openSubSubject(parent, subName, isSilentUpdate = false) {
@@ -481,7 +569,7 @@
         const iconHtml = getIconHTML(contentType);
         const chapters = data[subName] || [];
         
-        let lockBtnHtml = isLocked ? `<button class="lock-close-btn" onclick="lockFolder('${parent}')"><i class="fas fa-lock"></i> क्लोज</button>` : '';
+        let lockBtnHtml = isLocked ? `<button class="lock-close-btn" onclick="lockFolder('${parent}')"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
         document.getElementById("subSubjectTitle").innerHTML = `📂 ${subName} ${lockBtnHtml}`;
         
         const cont = document.getElementById("subSubjectChaptersList");
@@ -506,7 +594,6 @@
     }
 
     document.getElementById("globalSearchInput").addEventListener("input", function(e) {
-        toggleTickerPause(e.target.value.trim() !== "");
         renderCompactMasterList(e.target.value);
     });
 
@@ -555,12 +642,11 @@
                   </div>`;
         });
         
-        // 🚀 MARQUEE (Chain Ticker) LOGIC
-        if(searchQuery === "" && filteredItems.length > 3) {
-            let duration = filteredItems.length * 3; // 3 seconds per item for readable speed
-            container.innerHTML = `<div class="ticker-wrapper animate" style="animation-duration: ${duration}s">${h}${h}</div>`;
+        // 🚀 Chain Ticker Illusion: Duplicate list if items > 4 and no search
+        if(searchQuery === "" && filteredItems.length > 4) {
+            container.innerHTML = h + h; 
         } else {
-            container.innerHTML = `<div class="ticker-wrapper">${h}</div>`;
+            container.innerHTML = h;
         }
         
         attachOpenButtons(container);
@@ -605,13 +691,12 @@
         
         let addBtn = document.getElementById("addChapterAdminBtn");
         addBtn.innerHTML = `<i class="fas fa-save"></i> अपडेट करें`;
-        addBtn.style.background = "#2563eb"; // Blue for update
+        addBtn.style.background = "#2563eb"; 
         document.getElementById("cancelEditBtn").style.display = "block";
         document.getElementById("adminFormTitle").innerHTML = `<i class="fas fa-edit"></i> डेटा एडिट करें`;
         
-        // Open Admin Panel
         document.getElementById("adminPanel").classList.add("show-admin");
-        window.location.hash = ""; // Ensure we are on home
+        window.location.hash = ""; 
         setTimeout(() => window.scrollTo({ top: document.getElementById("adminPanel").offsetTop, behavior: 'smooth' }), 300);
     }
 
@@ -648,11 +733,15 @@
         let subN = document.getElementById("gkSubSubjectName").value.trim();
         
         if(editMode) {
-            let list = type === "nested" ? data[editItemDetails.subName] : data;
-            let itemIndex = list.findIndex(i => i.id === editItemDetails.id);
-            if(itemIndex > -1) {
-                list[itemIndex].name = name;
-                list[itemIndex].url = url;
+            let list = type === "nested" ? data[subName||""] : data; // Fallback handled earlier
+            if(type === "nested" && subN) list = data[subN];
+            
+            if(list) {
+                let itemIndex = list.findIndex(i => i.id === editItemDetails.id);
+                if(itemIndex > -1) {
+                    list[itemIndex].name = name;
+                    list[itemIndex].url = url;
+                }
             }
             await saveData(); fullRefresh(); resetEditMode(); alert("सफलतापूर्वक अपडेट हो गया!");
             return;
@@ -682,9 +771,11 @@
         let cIcon = document.getElementById("newSectionIcon").value.trim(); 
         let cPass = document.getElementById("newSectionPassword").value.trim(); 
         
-        // 🛠️ Auto-Fix Postimg URL format
+        // 🛠️ Auto-Fix Postimg URL format (If user enters page link instead of direct link)
         if(cIcon.includes("postimg.cc/") && !cIcon.includes("i.postimg.cc/")) {
-            cIcon = cIcon.replace("postimg.cc/", "i.postimg.cc/") + ".png"; 
+            let parts = cIcon.split("/");
+            let id = parts[parts.length-1];
+            cIcon = `https://i.postimg.cc/${id}/${id}.png`; // A rough fallback guess, proper direct link is better
         }
         
         let newSecData = { type: type, contentType: cType, customIcon: cIcon, isLocked: cPass !== "", password: cPass, data: type==="normal"?[]:{} };
@@ -694,7 +785,7 @@
         document.getElementById("newSectionName").value = ""; 
         document.getElementById("newSectionIcon").value = ""; 
         document.getElementById("newSectionPassword").value = ""; 
-        alert(cPass ? `प्राइवेट सेक्शन "${name}" लाइव बन गया!` : `सेक्शन "${name}" लाइव बन गया!`);
+        alert(cPass ? `🔒 प्राइवेट सेक्शन "${name}" लाइव बन गया!` : `सेक्शन "${name}" लाइव बन गया!`);
     }
     
     function renderManageSections() {
@@ -734,14 +825,18 @@
             document.getElementById("subjectPage").classList.remove("active");
             document.getElementById("subSubjectPage").classList.remove("active");
             document.getElementById("loginModal").classList.remove("active");
+            document.getElementById("passwordModal").classList.remove("active");
             isPageActive = "home";
         } else if(hash === "#subject") {
             document.getElementById("subSubjectPage").classList.remove("active");
             document.getElementById("loginModal").classList.remove("active");
+            document.getElementById("passwordModal").classList.remove("active");
             document.getElementById("subjectPage").classList.add("active");
             isPageActive = "subject";
         } else if(hash === "#login") {
             document.getElementById("loginModal").classList.add("active");
+        } else if(hash === "#password") {
+            document.getElementById("passwordModal").classList.add("active");
         }
     });
 
