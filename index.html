@@ -66,13 +66,14 @@
         .subject-card.custom-test .app-icon-box { background: linear-gradient(135deg, #10b981, #047857); }
         .subject-card.custom-link .app-icon-box { background: linear-gradient(135deg, #6366f1, #4338ca); }
         .subject-card.custom-book .app-icon-box { background: linear-gradient(135deg, #3b82f6, #1d4ed8); } 
-        .subject-card.is-locked .app-icon-box { background: linear-gradient(135deg, #475569, #0f172a); border: 2px solid #ef4444;}
 
+        /* ❌ ब्लैक कलर वाला कोड हटा दिया गया है ताकि ओरिजिनल कलर रहे */
+        
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
         .lock-badge { position: absolute; bottom: -6px; left: -6px; background: #1e293b; padding: 4px; font-size: 0.8rem; border-radius: 50%; color: #ffd966; border: 2px solid #fff3e0;}
 
-        /* ========= COMPACT MASTER LIST (FIXED DESIGN & SCROLL) ========= */
+        /* ========= COMPACT MASTER LIST (AUTO SCROLL & MANUAL SCROLL) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
@@ -84,7 +85,6 @@
         .compact-list::-webkit-scrollbar { width: 6px; }
         .compact-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
 
-        /* 🎨 यहाँ पट्टी वाला डिज़ाइन वापस लाया गया है */
         .compact-chapter-item { 
             background: #0f172a; padding: 0.8rem 1rem; display: flex; 
             justify-content: space-between; align-items: center; 
@@ -115,6 +115,7 @@
         .chapter-link-text { flex: 1; min-width: 0; display: block; line-height: 1.6; }
         .chapter-link-text span { display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px; font-size: 1.1rem; }
         .chapter-link-text strong { display: inline; vertical-align: middle; word-break: break-word; font-size: 0.95rem; }
+        .chapter-link-actions { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         .sub-subject-card-item { background: #2d3a4b; padding: 0.8rem; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #f97316; border-radius: 4px; color: white; font-weight: bold; display: flex; justify-content: space-between;}
 
         /* ========= ADMIN PANEL ========= */
@@ -313,7 +314,7 @@
         "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स", "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान", "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास", "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक", "book": "किताब", "document": "डॉक्यूमेंट", "my": "माय", "image": "इमेज", "photo": "फोटो"
     };
 
-    // 🚀 NEW: JS SCROLL TICKER (साइकिल चैन की तरह) + मैन्युअल सपोर्ट
+    // 🚀 NEW: JS SCROLL TICKER
     const compactListEl = document.getElementById("masterCompactList");
     let autoScrollTimer;
     let isUserScrolling = false;
@@ -324,8 +325,7 @@
         autoScrollTimer = setInterval(() => {
             if(!isUserScrolling && document.getElementById("globalSearchInput").value.trim() === "") {
                 compactListEl.scrollTop += 1;
-                // Seamless clone loop logic
-                if(compactListEl.scrollTop >= compactListEl.scrollHeight / 2) {
+                if(Math.ceil(compactListEl.scrollTop + compactListEl.clientHeight) >= compactListEl.scrollHeight / 2) {
                     compactListEl.scrollTop = 0;
                 }
             }
@@ -339,7 +339,7 @@
 
     function handleUserInteractionEnd() {
         clearTimeout(resumeScrollTimeout);
-        resumeScrollTimeout = setTimeout(() => { isUserScrolling = false; }, 4000); // 4 सेकंड बाद वापस चालू
+        resumeScrollTimeout = setTimeout(() => { isUserScrolling = false; }, 4000); 
     }
 
     compactListEl.addEventListener("touchstart", handleUserInteraction);
@@ -432,7 +432,6 @@
     function genId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 6); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m=='&'?'&amp;':m=='<'?'&lt;':'&gt;'); }
 
-    // 🛠️ मास्टर गेट-सेक्शन फंक्शन (पुरानी लिस्ट को भी लॉक सपोर्ट देने के लिए)
     function getAllSections() {
         let sections = [];
         DEFAULT_SECTIONS.forEach(s => {
@@ -527,7 +526,6 @@
             }
             
             let customClass = !s.isDefault ? (s.contentType === 'video' ? 'custom-video' : s.contentType === 'test' ? 'custom-test' : s.contentType === 'link' ? 'custom-link' : s.contentType === 'book' ? 'custom-book' : 'custom-section') : '';
-            if(s.isLocked) customClass += " is-locked";
             
             let lockIcon = s.isLocked ? `<i class="fas fa-lock lock-badge"></i>` : '';
             
@@ -559,7 +557,7 @@
         const { type, contentType, data } = secData;
         const cont = document.getElementById("subjectDetailContent");
 
-        let lockBtnHtml = secData.isLocked ? `<button class="lock-close-btn" onclick="lockFolder('${secKey}')"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
+        let lockBtnHtml = secData.isLocked ? `<button class="lock-close-btn" onclick="lockFolder()"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
         
         if(type === "nested") {
             const subs = Object.keys(data);
@@ -597,10 +595,8 @@
         }
     }
 
-    function lockFolder(secKey) {
-        delete unlockedSession[secKey];
-        history.back(); 
-        setTimeout(() => alert("🔒 फोल्डर सुरक्षित रूप से लॉक हो गया है!"), 300);
+    function lockFolder() {
+        history.back(); // This triggers hashchange -> goes home -> clears unlockedSession
     }
 
     function openSubSubject(parent, subName, isSilentUpdate = false) {
@@ -610,7 +606,7 @@
         const { data, contentType, isLocked } = getSectionData(parent);
         const chapters = data[subName] || [];
         
-        let lockBtnHtml = isLocked ? `<button class="lock-close-btn" onclick="lockFolder('${parent}')"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
+        let lockBtnHtml = isLocked ? `<button class="lock-close-btn" onclick="lockFolder()"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
         document.getElementById("subSubjectTitle").innerHTML = `📂 ${subName} ${lockBtnHtml}`;
         
         const cont = document.getElementById("subSubjectChaptersList");
@@ -645,7 +641,7 @@
         
         getAllSections().forEach(sec => {
             const secData = getSectionData(sec.key);
-            // 🛑 STRICT SECURITY CHECK: अगर फोल्डर लॉक है, तो उसका डेटा लिस्ट में नहीं आएगा
+            // 🛑 STRICT SECURITY CHECK
             if(secData.isLocked === true) return; 
             
             if(secData.type === "normal") secData.data.forEach(ch => allGlobalItems.push({ ...ch, label: sec.key, sKey: sec.key, folderContentType: secData.contentType }));
@@ -673,7 +669,6 @@
         let h = "";
         filteredItems.forEach(ch => {
             let display = getItemDisplayDetails(ch.itemType, ch.folderContentType);
-            // 🎨 पट्टी (कार्ड) वाला नया डिज़ाइन
             h += `<div class="compact-chapter-item">
                     <div class="compact-item-text">
                         <span class="compact-badge">${display.icon} ${escapeHtml(ch.label)}</span> 
@@ -687,7 +682,6 @@
                   </div>`;
         });
         
-        // 🔄 Seamless Scroll Cloning
         if(searchQuery === "" && filteredItems.length > 3) {
             container.innerHTML = `<div>${h}${h}</div>`; 
         } else {
@@ -761,23 +755,36 @@
         document.getElementById("adminFormTitle").innerHTML = `<i class="fas fa-plus-circle"></i> नया डेटा जोड़ें`;
     }
 
-    // 🔐 एडमिन से पुरानी लिस्ट पर लॉक लगाना
+    // 🔐 Admin Lock/Unlock Logic
     document.getElementById("updateLockBtn").addEventListener("click", async () => {
         if(!isAdminLoggedIn) return;
         let secKey = document.getElementById("adminLockSelect").value;
         let pass = document.getElementById("adminLockPassword").value.trim();
         
         if(!appData.customSections[secKey]) appData.customSections[secKey] = {};
+        let secData = appData.customSections[secKey];
         
-        if(pass === "") {
-            appData.customSections[secKey].isLocked = false;
-            appData.customSections[secKey].password = "";
-            alert(`"${secKey}" अब अनलॉक हो गया है!`);
+        // If unlocking an already locked folder, ask for the old password first!
+        if (secData.isLocked && pass === "") {
+            let oldPass = prompt(`इस फोल्डर को हमेशा के लिए अनलॉक करने के लिए इसका पुराना (करंट) पासवर्ड डालें:`);
+            if (oldPass === null) return; // User pressed Cancel
+            if (btoa(oldPass) !== secData.password) {
+                alert("❌ गलत पासवर्ड! आप इसे अनलॉक नहीं कर सकते।");
+                return;
+            }
+            secData.isLocked = false;
+            secData.password = "";
+            alert(`"${secKey}" अब हमेशा के लिए अनलॉक हो गया है! इसका डेटा लिस्ट में दिखने लगेगा।`);
+        } else if (pass !== "") {
+            // Locking or changing password
+            secData.isLocked = true;
+            secData.password = btoa(pass); 
+            alert(`🔒 "${secKey}" सुरक्षित रूप से नए पासवर्ड के साथ लॉक हो गया है!`);
         } else {
-            appData.customSections[secKey].isLocked = true;
-            appData.customSections[secKey].password = btoa(pass); // Base64 Secure Entry
-            alert(`🔒 "${secKey}" सुरक्षित रूप से लॉक हो गया है!`);
+            alert(`"${secKey}" पहले से ही अनलॉक है।`);
+            return;
         }
+        
         await saveData(); 
         fullRefresh();
         document.getElementById("adminLockPassword").value = "";
@@ -785,7 +792,7 @@
 
     function updateAdminSelect() {
         const sel = document.getElementById("adminSubjectSelect");
-        const lockSel = document.getElementById("adminLockSelect"); // For lock updates
+        const lockSel = document.getElementById("adminLockSelect"); 
         let opts = ""; getAllSections().forEach(s => { opts += `<option value="${s.key}">${s.key}</option>`; });
         sel.innerHTML = opts; 
         lockSel.innerHTML = opts; 
@@ -893,6 +900,7 @@
     
     document.getElementById("logoutAdminBtn")?.addEventListener("click", () => { isAdminLoggedIn=false; fullRefresh(); alert("लॉगआउट"); clearLoginFields(); resetEditMode(); });
     
+    // 🛠️ HASH ROUTING (NATIVE BACK BUTTON FIX + AUTO-LOCK LOGIC)
     window.addEventListener("hashchange", () => {
         let hash = window.location.hash;
         if(hash === "") {
@@ -901,6 +909,9 @@
             document.getElementById("loginModal").classList.remove("active");
             document.getElementById("passwordModal").classList.remove("active");
             isPageActive = "home";
+            
+            // 🔒 AUTO LOCK: होम पेज पर आते ही सारे खुले हुए प्राइवेट फोल्डर वापस लॉक हो जायेंगे
+            unlockedSession = {}; 
         } else if(hash === "#subject") {
             document.getElementById("subSubjectPage").classList.remove("active");
             document.getElementById("loginModal").classList.remove("active");
