@@ -15,7 +15,20 @@
         .loader-spinner { border: 5px solid #334155; border-top: 5px solid #f97316; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* ========= HEADER ========= */
+        /* ========= TOAST NOTIFICATIONS ========= */
+        #toastContainer { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: #1e293b; color: white; padding: 14px 20px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-weight: 600; transform: translateX(120%); animation: slideInToast 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); border-left: 5px solid; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
+        .toast.success { border-color: #10b981; }
+        .toast.success i { color: #10b981; }
+        .toast.error { border-color: #ef4444; }
+        .toast.error i { color: #ef4444; }
+        .toast.info { border-color: #3b82f6; }
+        .toast.info i { color: #3b82f6; }
+        .toast.fade-out { animation: fadeOutToast 0.4s forwards; }
+        @keyframes slideInToast { to { transform: translateX(0); } }
+        @keyframes fadeOutToast { to { opacity: 0; transform: translateX(100%); } }
+
+        /* ========= HEADER & BELL ========= */
         .hero-section { 
             display: flex; justify-content: space-between; align-items: center; 
             background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); 
@@ -26,9 +39,16 @@
         .title-box { flex: 1; }
         .title-box h1 { font-size: 1.8rem; background: linear-gradient(130deg, #fff3cf, #ffd966); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; }
         .title-box p { color: #fdebb3; font-weight: 500; margin-top: 6px; font-size: 0.9rem;}
-        .header-actions { display: flex; gap: 12px; }
+        
+        .header-actions { display: flex; gap: 15px; align-items: center; }
         .admin-lock-icon { background: linear-gradient(145deg, #ff9f4a, #ff7e2e); padding: 10px 20px; color: white; font-weight: 800; cursor: pointer; border-radius: 8px; transition: 0.2s; box-shadow: 0 5px 12px rgba(0,0,0,0.2); white-space: nowrap;}
         .admin-lock-icon:hover { background: #e67e22; transform: translateY(-3px); }
+        
+        .notif-bell { position: relative; color: white; font-size: 1.6rem; cursor: pointer; padding: 5px; transition: 0.2s; }
+        .notif-bell:hover { transform: scale(1.1); color: #ffd966; }
+        .notif-badge { position: absolute; top: 0; right: -2px; background: #ef4444; color: white; font-size: 0.65rem; font-weight: bold; width: 18px; height: 18px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid #1e293b; display: none; }
+        .ring-anim { animation: bellRing 0.5s ease-in-out; }
+        @keyframes bellRing { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-15deg); } 75% { transform: rotate(15deg); } }
 
         @media (max-width: 650px) {
             .hero-section { flex-direction: column; text-align: center; gap: 15px; padding: 1.5rem 1rem;}
@@ -42,10 +62,7 @@
             box-shadow: 0 8px 15px rgba(0,0,0,0.1);
         }
         .search-bar-container i { color: #10b981; font-size: 1.2rem; }
-        .search-bar-container input {
-            background: transparent; border: none; color: white; width: 100%; 
-            font-size: 1.05rem; outline: none; font-weight: 500;
-        }
+        .search-bar-container input { background: transparent; border: none; color: white; width: 100%; font-size: 1.05rem; outline: none; font-weight: 500; }
         .search-bar-container input::placeholder { color: #94a3b8; }
 
         /* ========= APP STYLE GRID ========= */
@@ -66,14 +83,13 @@
         .subject-card.custom-test .app-icon-box { background: linear-gradient(135deg, #10b981, #047857); }
         .subject-card.custom-link .app-icon-box { background: linear-gradient(135deg, #6366f1, #4338ca); }
         .subject-card.custom-book .app-icon-box { background: linear-gradient(135deg, #3b82f6, #1d4ed8); } 
+        .subject-card.is-locked .app-icon-box { background: linear-gradient(135deg, #475569, #0f172a); border: 2px solid #ef4444;}
 
-        /* ❌ ब्लैक कलर वाला कोड हटा दिया गया है ताकि ओरिजिनल कलर रहे */
-        
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
         .lock-badge { position: absolute; bottom: -6px; left: -6px; background: #1e293b; padding: 4px; font-size: 0.8rem; border-radius: 50%; color: #ffd966; border: 2px solid #fff3e0;}
 
-        /* ========= COMPACT MASTER LIST (AUTO SCROLL & MANUAL SCROLL) ========= */
+        /* ========= COMPACT MASTER LIST ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
@@ -107,7 +123,7 @@
         .page-overlay.active { display: block; animation: fade 0.2s; }
         @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
         .detail-header { background: #1e293b; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid #f97316; margin-bottom: 1.5rem; border-radius: 4px; }
-        .back-home-btn, .bottom-back-btn, .lock-close-btn { background: #334155; color: white; border: none; border-radius: 4px; padding: 8px 20px; font-weight: bold; cursor: pointer; }
+        .back-home-btn, .lock-close-btn { background: #334155; color: white; border: none; border-radius: 4px; padding: 8px 20px; font-weight: bold; cursor: pointer; }
         .lock-close-btn { background: #dc2626; }
         .subject-title-lg { font-size: 1.8rem; color: #ffb347; font-weight: 800; display:flex; align-items:center; gap:10px; flex-wrap: wrap;}
         
@@ -128,16 +144,23 @@
         .btn-primary { background: #f97316; border: none; border-radius: 4px; padding: 10px 24px; font-weight: bold; cursor: pointer; color: white; width:100%;}
         .section-manager { margin-top: 1.5rem; border-top: 1px solid #475569; padding-top: 1rem; }
 
-        /* ========= MODALS (LOGIN & PASSWORD) ========= */
+        /* ========= MODALS (LOGIN & PASSWORD & ADMIN UNLOCK & NOTIF) ========= */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.2s; }
         .modal.active { visibility: visible; opacity: 1; }
         .login-box { background: #1e293b; padding: 2.5rem 2rem; max-width: 380px; width: 90%; border-left: 6px solid #f97316; border-radius: 8px; text-align: center; color: white; box-shadow: 0 15px 30px rgba(0,0,0,0.5);}
         .login-box input { background: #334155; border: none; border-radius: 4px; padding: 12px; width: 100%; margin: 10px 0; color: white; }
         
+        .notif-modal .login-box { border-left-color: #10b981; text-align: left; padding: 1.5rem;}
+        .notif-list { max-height: 250px; overflow-y: auto; margin-top: 15px; }
+        .notif-item { background: #0f172a; padding: 10px; border-left: 3px solid #10b981; margin-bottom: 8px; border-radius: 4px; font-size: 0.9rem;}
+        .notif-item span { font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 4px;}
+
         .site-footer { margin-top: 2rem; background: #0f172a; text-align: center; padding: 1rem; border-radius: 8px; color: #94a3b8; border-top: 2px solid #f97316; font-size: 0.85rem; }
     </style>
 </head>
 <body>
+
+<div id="toastContainer"></div>
 
 <div id="loadingScreen">
     <div class="loader-spinner"></div>
@@ -151,19 +174,23 @@
             <p>लाइव ऑनलाइन डेटाबेस · ऐप स्टाइल लेआउट</p>
         </div>
         <div class="header-actions">
-            <div class="admin-lock-icon" id="adminLockBtn"><i class="fas fa-lock"></i> एडमिन</div>
+            <div class="notif-bell" id="bellIconBtn" onclick="openNotifications()">
+                <i class="fas fa-bell"></i>
+                <span class="notif-badge" id="notifBadgeCounter">0</span>
+            </div>
+            <div class="admin-lock-icon" id="adminLockBtn"><i class="fas fa-lock"></i> Admin</div>
         </div>
     </div>
     
     <div class="search-bar-container">
         <i class="fas fa-search"></i>
-        <input type="text" id="globalSearchInput" placeholder="सर्च करें (उदा: alankar, image, math, pdf)...">
+        <input type="text" id="globalSearchInput" placeholder="Search (ex: alankar, image, math, pdf)...">
     </div>
     
     <div class="subjects-grid" id="subjectsGrid"></div>
     
     <div class="master-chapters-section">
-        <div class="master-title" id="listTitle"><i class="fas fa-layer-group"></i> सभी लिस्ट (संक्षिप्त सूची)</div>
+        <div class="master-title" id="listTitle"><i class="fas fa-layer-group"></i> All Lists (Compact View)</div>
         <div id="masterCompactList" class="compact-list"></div>
     </div>
     
@@ -172,7 +199,7 @@
     </div>
 
     <div id="adminPanel" class="admin-panel-area">
-        <button id="logoutAdminBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> लॉगआउट</button>
+        <button id="logoutAdminBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         <h3 id="adminFormTitle"><i class="fas fa-plus-circle"></i> नया डेटा जोड़ें</h3>
         <div class="form-flex">
             <div class="form-group"><input type="text" id="adminChapterName" placeholder="फाइल/वीडियो/इमेज का नाम"></div>
@@ -194,18 +221,21 @@
 
             <div style="width:100%; display:flex; gap:10px;">
                 <button class="btn-primary" id="addChapterAdminBtn" style="flex:1;"><i class="fas fa-plus"></i> जोड़ें</button>
-                <button class="btn-primary" id="cancelEditBtn" style="background:#475569; display:none; flex:0.4;">कैंसिल</button>
+                <button class="btn-primary" id="cancelEditBtn" style="background:#475569; display:none; flex:0.4;">Cancel</button>
             </div>
         </div>
         
         <div class="section-manager">
             <h4>🔐 किसी भी फोल्डर को लॉक / अनलॉक करें</h4>
             <div class="form-flex">
-                <div class="form-group"><select id="adminLockSelect"></select></div>
-                <div class="form-group">
-                    <input type="text" id="adminLockPassword" placeholder="नया पासवर्ड (अनलॉक करने के लिए खाली छोड़ें)">
+                <div class="form-group" style="width: 100%;"><select id="adminLockSelect"></select></div>
+                <div class="form-group" style="width: 100%;">
+                    <input type="text" id="adminLockPassword" placeholder="पासवर्ड दर्ज करें (सिर्फ लॉक करने के लिए)">
                 </div>
-                <button class="btn-primary" id="updateLockBtn"><i class="fas fa-user-shield"></i> लॉक अपडेट करें</button>
+                <div style="width:100%; display:flex; gap:10px;">
+                    <button class="btn-primary" id="updateLockBtn" style="flex:1; background:#10b981;"><i class="fas fa-lock"></i> लॉक करें</button>
+                    <button class="btn-primary" id="unlockFolderBtn" style="flex:1; background:#ef4444;"><i class="fas fa-unlock"></i> अनलॉक करें</button>
+                </div>
             </div>
         </div>
 
@@ -245,7 +275,7 @@
 <div id="subjectPage" class="page-overlay">
     <div class="detail-header">
         <div class="subject-title-lg" id="detailSubjectTitle"></div>
-        <button class="back-home-btn" id="backHomeBtn"><i class="fas fa-arrow-left"></i> वापस</button>
+        <button class="back-home-btn" id="backHomeBtn"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div id="subjectDetailContent" class="chapters-container"></div>
 </div>
@@ -253,7 +283,7 @@
 <div id="subSubjectPage" class="page-overlay">
     <div class="detail-header">
         <div class="subject-title-lg" id="subSubjectTitle"></div>
-        <button class="back-home-btn" id="backToSubjectsBtn"><i class="fas fa-arrow-left"></i> वापस</button>
+        <button class="back-home-btn" id="backToSubjectsBtn"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div id="subSubjectChaptersList" class="chapters-container"></div>
 </div>
@@ -261,12 +291,12 @@
 <div id="loginModal" class="modal">
     <div class="login-box">
         <i class="fas fa-user-shield" style="font-size: 2.5rem; color:#f97316; margin-bottom: 10px;"></i>
-        <h3>एडमिन लॉगिन</h3>
-        <input type="text" id="loginUserId" placeholder="मोबाइल नंबर">
-        <input type="password" id="loginPassword" placeholder="पासवर्ड">
+        <h3>Admin Login</h3>
+        <input type="text" id="loginUserId" placeholder="Mobile Number">
+        <input type="password" id="loginPassword" placeholder="Password">
         <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn-primary" id="closeLoginBtn" style="background: #475569; width: 50%;">वापस</button>
-            <button class="btn-primary" id="submitLoginBtn" style="width: 50%;">लॉगिन</button>
+            <button class="btn-primary" id="closeLoginBtn" style="background: #475569; width: 50%;">Cancel</button>
+            <button class="btn-primary" id="submitLoginBtn" style="width: 50%;">Login</button>
         </div>
     </div>
 </div>
@@ -274,18 +304,41 @@
 <div id="passwordModal" class="modal">
     <div class="login-box" style="border-left-color: #ef4444;">
         <i class="fas fa-lock" style="font-size: 2.5rem; color:#ef4444; margin-bottom: 10px;"></i>
-        <h3 style="color: white; margin-bottom: 5px;">सुरक्षित फोल्डर</h3>
+        <h3 style="color: white; margin-bottom: 5px;">Secure Folder</h3>
         <p id="passwordModalSubject" style="color: #94a3b8; margin-bottom: 15px; font-size: 0.9rem;"></p>
         
         <div style="position: relative; width: 100%; margin: 10px 0;">
-            <input type="password" id="folderPasswordInput" placeholder="पासवर्ड डालें..." style="width: 100%; padding: 12px; padding-right: 40px; background: #334155; border: none; border-radius: 4px; color: white; outline: none;">
+            <input type="password" id="folderPasswordInput" placeholder="Enter Password..." style="width: 100%; padding: 12px; padding-right: 40px; background: #334155; border: none; border-radius: 4px; color: white; outline: none;">
             <i class="fas fa-eye" id="togglePasswordEye" style="position: absolute; right: 15px; top: 14px; color: #94a3b8; cursor: pointer; font-size: 1.1rem;"></i>
         </div>
         
         <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn-primary" id="cancelPasswordBtn" style="background: #475569; width: 50%;">रद्द करें</button>
-            <button class="btn-primary" id="submitPasswordBtn" style="width: 50%; background: #10b981;">खोलें</button>
+            <button class="btn-primary" id="cancelPasswordBtn" style="background: #475569; width: 50%;">Cancel</button>
+            <button class="btn-primary" id="submitPasswordBtn" style="width: 50%; background: #10b981;">Unlock</button>
         </div>
+    </div>
+</div>
+
+<div id="adminUnlockModal" class="modal">
+    <div class="login-box" style="border-left-color: #ef4444;">
+        <i class="fas fa-unlock-alt" style="font-size: 2.5rem; color:#ef4444; margin-bottom: 10px;"></i>
+        <h3 style="color: white; margin-bottom: 5px;">Remove Password</h3>
+        <p style="color: #94a3b8; margin-bottom: 15px; font-size: 0.9rem;">Enter current password to permanently unlock this folder.</p>
+        <input type="password" id="adminUnlockPassInput" placeholder="Current Password..." style="width: 100%; padding: 12px; background: #334155; border: none; border-radius: 4px; color: white;">
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn-primary" id="cancelAdminUnlockBtn" style="background: #475569; width: 50%;">Cancel</button>
+            <button class="btn-primary" id="submitAdminUnlockBtn" style="width: 50%; background: #ef4444;">Remove Lock</button>
+        </div>
+    </div>
+</div>
+
+<div id="notifModal" class="modal notif-modal">
+    <div class="login-box">
+        <h3 style="color: white; margin-bottom: 5px;"><i class="fas fa-bell" style="color:#10b981;"></i> Recent Updates</h3>
+        <div class="notif-list" id="notifListContainer">
+            <div style="color:#94a3b8; text-align:center; padding: 20px;">No new updates</div>
+        </div>
+        <button class="btn-primary" onclick="closeNotifications()" style="width: 100%; background: #475569; margin-top:15px;">Close</button>
     </div>
 </div>
 
@@ -297,7 +350,7 @@
     const ENCODED_PW = "QW5rdXNoQDEyMzFAMTIz"; 
     
     let isAdminLoggedIn = false;
-    let appData = { customSections: {} };
+    let appData = { customSections: {}, notifications: [] };
     const DEFAULT_SECTIONS = ["Hindi", "Math", "Reasoning", "CurrentAffairs", "GKGS"];
     
     let currentParentSection = "GKGS"; 
@@ -309,12 +362,84 @@
     let pendingSubjectToOpen = null;
     let editMode = false;
     let editItemDetails = {};
+    let unreadNotifCount = 0;
 
     const hinglishDict = {
         "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स", "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान", "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास", "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक", "book": "किताब", "document": "डॉक्यूमेंट", "my": "माय", "image": "इमेज", "photo": "फोटो"
     };
 
-    // 🚀 NEW: JS SCROLL TICKER
+    // 🚀 BEAUTIFUL TOAST NOTIFICATION SYSTEM
+    function showToast(message, type = "info") {
+        let container = document.getElementById("toastContainer");
+        let toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        
+        let icon = type === "success" ? "fa-check-circle" : type === "error" ? "fa-times-circle" : "fa-info-circle";
+        toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add("fade-out");
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+
+    // 🎵 WEB AUDIO API BEEP (देसी जुगाड़: No MP3 needed)
+    function playNotificationSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime); // High pitch A5
+            gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // Soft volume
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+            osc.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.5);
+        } catch(e) { console.log("Audio not supported or blocked by browser."); }
+    }
+
+    // 🔔 NOTIFICATION SYSTEM LOGIC
+    function addNotification(section, chapterName) {
+        if(!appData.notifications) appData.notifications = [];
+        let timeStr = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        // Max 15 notifications history
+        appData.notifications.unshift({ text: `${section} - ${chapterName}`, time: timeStr });
+        if(appData.notifications.length > 15) appData.notifications.pop();
+    }
+
+    function renderNotifications() {
+        const cont = document.getElementById("notifListContainer");
+        if(!appData.notifications || appData.notifications.length === 0) {
+            cont.innerHTML = `<div style="color:#94a3b8; text-align:center; padding: 20px;">No new updates</div>`;
+            return;
+        }
+        let h = "";
+        appData.notifications.forEach(n => {
+            h += `<div class="notif-item"><i class="fas fa-check-circle" style="color:#10b981; margin-right:5px;"></i> ${escapeHtml(n.text)} <span>${n.time}</span></div>`;
+        });
+        cont.innerHTML = h;
+    }
+
+    function openNotifications() {
+        renderNotifications();
+        document.getElementById("notifModal").classList.add("active");
+        window.location.hash = "notifications";
+        // Reset Bell
+        unreadNotifCount = 0;
+        document.getElementById("notifBadgeCounter").style.display = "none";
+        document.getElementById("bellIconBtn").classList.remove("ring-anim");
+    }
+
+    function closeNotifications() {
+        document.getElementById("notifModal").classList.remove("active");
+        history.back();
+    }
+
+    // 🚀 SCROLL TICKER
     const compactListEl = document.getElementById("masterCompactList");
     let autoScrollTimer;
     let isUserScrolling = false;
@@ -345,14 +470,12 @@
     compactListEl.addEventListener("touchstart", handleUserInteraction);
     compactListEl.addEventListener("mousedown", handleUserInteraction);
     compactListEl.addEventListener("wheel", handleUserInteraction);
-    
     compactListEl.addEventListener("touchend", handleUserInteractionEnd);
     compactListEl.addEventListener("mouseup", handleUserInteractionEnd);
     compactListEl.addEventListener("mouseleave", handleUserInteractionEnd);
 
     startSmoothAutoScroll();
 
-    // 👁️ PASSWORD EYE TOGGLE
     document.getElementById("togglePasswordEye").addEventListener("click", function() {
         let input = document.getElementById("folderPasswordInput");
         if (input.type === "password") {
@@ -381,8 +504,9 @@
             document.getElementById("passwordModal").classList.remove("active");
             history.replaceState(null, null, window.location.pathname); 
             openSubject(pendingSubjectToOpen);
+            showToast("Folder Unlocked!", "success");
         } else {
-            alert("❌ गलत पासवर्ड! कृपया दोबारा प्रयास करें।");
+            showToast("Incorrect Password!", "error");
         }
     });
 
@@ -392,26 +516,54 @@
             const response = await fetch(SCRIPT_URL);
             appData = await response.json();
             if(!appData.customSections) appData.customSections = {};
+            if(!appData.notifications) appData.notifications = [];
             DEFAULT_SECTIONS.forEach(s => { if(s === "GKGS") { if(!appData[s]) appData[s] = {}; } else if(!appData[s]) appData[s] = []; });
             
             document.getElementById("loadingScreen").style.display = "none";
             document.getElementById("homeContainer").style.display = "block";
             fullRefresh();
-        } catch (error) { document.getElementById("loadingText").innerText = "डेटा लोड करने में समस्या आई।"; }
+        } catch (error) { document.getElementById("loadingText").innerText = "Network Error!"; }
     }
 
     async function silentBackgroundUpdate() {
         try {
             const response = await fetch(SCRIPT_URL);
             const storedData = await response.json();
+            
+            // Check if there are new notifications
+            let oldNotifCount = appData.notifications ? appData.notifications.length : 0;
+            let newNotifCount = storedData.notifications ? storedData.notifications.length : 0;
+            let isNewUpdate = false;
+            
+            if(storedData.notifications && appData.notifications) {
+                if(newNotifCount > 0 && (oldNotifCount === 0 || storedData.notifications[0].text !== appData.notifications[0].text)) {
+                    isNewUpdate = true;
+                }
+            }
+
             if (JSON.stringify(storedData) !== JSON.stringify(appData)) {
                 appData = storedData;
                 if(!appData.customSections) appData.customSections = {};
+                if(!appData.notifications) appData.notifications = [];
                 DEFAULT_SECTIONS.forEach(s => { if(s === "GKGS") { if(!appData[s]) appData[s] = {}; } else if(!appData[s]) appData[s] = []; });
                 
                 fullRefresh();
                 if (isPageActive === "subject" && currentOpenSubject) openSubject(currentOpenSubject, true);
                 else if (isPageActive === "subSubject" && currentOpenSubject && currentOpenSubSubject) openSubSubject(currentOpenSubject, currentOpenSubSubject, true);
+                
+                // Ring bell and show badge if new update detected!
+                if(isNewUpdate && !isAdminLoggedIn) {
+                    unreadNotifCount++;
+                    let badge = document.getElementById("notifBadgeCounter");
+                    badge.innerText = unreadNotifCount;
+                    badge.style.display = "flex";
+                    let bell = document.getElementById("bellIconBtn");
+                    bell.classList.remove("ring-anim");
+                    void bell.offsetWidth; // trigger reflow
+                    bell.classList.add("ring-anim");
+                    playNotificationSound();
+                    showToast("New Notes Added!", "success");
+                }
             }
         } catch (error) {}
     }
@@ -419,12 +571,12 @@
 
     async function saveData() {
         document.getElementById("loadingScreen").style.display = "flex";
-        document.getElementById("loadingText").innerText = "अपडेट सेव हो रहा है...";
+        document.getElementById("loadingText").innerText = "Saving Data...";
         try {
             await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ data: appData }) });
             document.getElementById("loadingScreen").style.display = "none";
         } catch(e) {
-            alert("सेव करने में एरर: " + e);
+            showToast("Save Error!", "error");
             document.getElementById("loadingScreen").style.display = "none";
         }
     }
@@ -436,21 +588,11 @@
         let sections = [];
         DEFAULT_SECTIONS.forEach(s => {
             let meta = appData.customSections[s] || {};
-            sections.push({ 
-                key: s, isDefault: true, 
-                contentType: meta.contentType || "pdf",
-                customIcon: meta.customIcon || "",
-                isLocked: meta.isLocked || false
-            });
+            sections.push({ key: s, isDefault: true, contentType: meta.contentType || "pdf", customIcon: meta.customIcon || "", isLocked: meta.isLocked || false });
         });
         for(let k in appData.customSections) {
             if(!DEFAULT_SECTIONS.includes(k)) {
-                sections.push({ 
-                    key: k, isDefault: false, type: appData.customSections[k].type, 
-                    contentType: appData.customSections[k].contentType || "pdf",
-                    customIcon: appData.customSections[k].customIcon || "",
-                    isLocked: appData.customSections[k].isLocked || false
-                });
+                sections.push({ key: k, isDefault: false, type: appData.customSections[k].type, contentType: appData.customSections[k].contentType || "pdf", customIcon: appData.customSections[k].customIcon || "", isLocked: appData.customSections[k].isLocked || false });
             }
         }
         return sections;
@@ -460,14 +602,7 @@
         let meta = appData.customSections[key] || {};
         if(DEFAULT_SECTIONS.includes(key)) {
             let data = appData[key] || (key === "GKGS" ? {} : []);
-            return { 
-                type: key === "GKGS" ? "nested" : "normal", 
-                contentType: meta.contentType || "pdf", 
-                customIcon: meta.customIcon || "", 
-                isLocked: meta.isLocked || false, 
-                password: meta.password || "", 
-                data: data 
-            };
+            return { type: key === "GKGS" ? "nested" : "normal", contentType: meta.contentType || "pdf", customIcon: meta.customIcon || "", isLocked: meta.isLocked || false, password: meta.password || "", data: data };
         }
         return appData.customSections[key] || { type: "normal", contentType: "pdf", data: [] };
     }
@@ -481,20 +616,14 @@
     function getItemDisplayDetails(itemType, folderContentType) {
         let type = (itemType && itemType !== 'default') ? itemType : folderContentType;
         let icon = '<i class="fas fa-file-pdf" style="color:#ff6b81;"></i>';
-        let btnText = 'पीडीएफ खोलें';
+        let btnText = 'Open PDF';
         let btnIcon = 'fas fa-book-open';
 
-        if(type === 'video') { 
-            icon = '<i class="fas fa-play-circle" style="color:#ff4757;"></i>'; btnText = 'प्ले करें'; btnIcon = 'fas fa-play'; 
-        } else if(type === 'image') { 
-            icon = '<i class="fas fa-image" style="color:#a855f7;"></i>'; btnText = 'इमेज देखें'; btnIcon = 'fas fa-image'; 
-        } else if(type === 'test') { 
-            icon = '<i class="fas fa-check-circle" style="color:#10b981;"></i>'; btnText = 'टेस्ट दें'; btnIcon = 'fas fa-pencil-alt'; 
-        } else if(type === 'link') { 
-            icon = '<i class="fas fa-link" style="color:#6366f1;"></i>'; btnText = 'लिंक खोलें'; btnIcon = 'fas fa-globe'; 
-        } else if(type === 'book') { 
-            icon = '<i class="fas fa-book" style="color:#3b82f6;"></i>'; btnText = 'किताब खोलें'; btnIcon = 'fas fa-book-reader'; 
-        }
+        if(type === 'video') { icon = '<i class="fas fa-play-circle" style="color:#ff4757;"></i>'; btnText = 'Play Video'; btnIcon = 'fas fa-play'; } 
+        else if(type === 'image') { icon = '<i class="fas fa-image" style="color:#a855f7;"></i>'; btnText = 'View Image'; btnIcon = 'fas fa-image'; } 
+        else if(type === 'test') { icon = '<i class="fas fa-check-circle" style="color:#10b981;"></i>'; btnText = 'Start Quiz'; btnIcon = 'fas fa-pencil-alt'; } 
+        else if(type === 'link') { icon = '<i class="fas fa-link" style="color:#6366f1;"></i>'; btnText = 'Open Link'; btnIcon = 'fas fa-globe'; } 
+        else if(type === 'book') { icon = '<i class="fas fa-book" style="color:#3b82f6;"></i>'; btnText = 'Read Book'; btnIcon = 'fas fa-book-reader'; }
 
         return { icon, btnText, btnIcon };
     }
@@ -540,11 +669,9 @@
         
         if(secData.isLocked && !unlockedSession[secKey] && !isSilentUpdate) {
             pendingSubjectToOpen = secKey;
-            document.getElementById("passwordModalSubject").innerText = `"${secKey}" एक सुरक्षित फोल्डर है`;
+            document.getElementById("passwordModalSubject").innerText = `"${secKey}" is a Secure Folder`;
             document.getElementById("folderPasswordInput").value = "";
             document.getElementById("folderPasswordInput").type = "password";
-            document.getElementById("togglePasswordEye").classList.remove("fa-eye-slash");
-            document.getElementById("togglePasswordEye").classList.add("fa-eye");
             
             window.location.hash = "password";
             document.getElementById("passwordModal").classList.add("active");
@@ -557,15 +684,15 @@
         const { type, contentType, data } = secData;
         const cont = document.getElementById("subjectDetailContent");
 
-        let lockBtnHtml = secData.isLocked ? `<button class="lock-close-btn" onclick="lockFolder()"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
+        let lockBtnHtml = secData.isLocked ? `<button class="lock-close-btn" onclick="lockFolder()"><i class="fas fa-lock"></i> 🔒 Lock Folder</button>` : '';
         
         if(type === "nested") {
             const subs = Object.keys(data);
             document.getElementById("detailSubjectTitle").innerHTML = `📁 ${secKey} ${lockBtnHtml}`;
-            if(subs.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">कोई सब-सेक्शन नहीं</div>`;
+            if(subs.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">No Items</div>`;
             else {
                 let h = "";
-                subs.forEach(ss => { h += `<div class="sub-subject-card-item" data-subsub="${escapeHtml(ss)}"><div><i class="fas fa-folder-open" style="color:#ffd966;"></i> <strong>${escapeHtml(ss)}</strong> (${data[ss].length} आइटम)</div><i class="fas fa-chevron-right"></i></div>`; });
+                subs.forEach(ss => { h += `<div class="sub-subject-card-item" data-subsub="${escapeHtml(ss)}"><div><i class="fas fa-folder-open" style="color:#ffd966;"></i> <strong>${escapeHtml(ss)}</strong> (${data[ss].length} items)</div><i class="fas fa-chevron-right"></i></div>`; });
                 cont.innerHTML = h;
                 document.querySelectorAll(".sub-subject-card-item").forEach(el => el.addEventListener("click", () => openSubSubject(secKey, el.getAttribute("data-subsub"))));
             }
@@ -574,7 +701,7 @@
         } else {
             const chapters = data;
             document.getElementById("detailSubjectTitle").innerHTML = `📖 ${secKey} ${lockBtnHtml}`;
-            if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">कोई आइटम नहीं</div>`;
+            if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">No Items</div>`;
             else {
                 let h = "";
                 chapters.forEach(ch => { 
@@ -583,8 +710,8 @@
                         <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong></div>
                         <div class="compact-item-actions">
                             <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
-                            <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${secKey}', null, '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">एडिट</button>
-                            <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${secKey}', null)">हटाएँ</button>
+                            <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${secKey}', null, '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">Edit</button>
+                            <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${secKey}', null)">Delete</button>
                         </div>
                     </div>`; 
                 });
@@ -595,9 +722,7 @@
         }
     }
 
-    function lockFolder() {
-        history.back(); // This triggers hashchange -> goes home -> clears unlockedSession
-    }
+    function lockFolder() { history.back(); }
 
     function openSubSubject(parent, subName, isSilentUpdate = false) {
         currentParentSection = parent; currentOpenSubject = parent; currentOpenSubSubject = subName; isPageActive = "subSubject";
@@ -606,11 +731,11 @@
         const { data, contentType, isLocked } = getSectionData(parent);
         const chapters = data[subName] || [];
         
-        let lockBtnHtml = isLocked ? `<button class="lock-close-btn" onclick="lockFolder()"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
+        let lockBtnHtml = isLocked ? `<button class="lock-close-btn" onclick="lockFolder()"><i class="fas fa-lock"></i> 🔒 Lock Folder</button>` : '';
         document.getElementById("subSubjectTitle").innerHTML = `📂 ${subName} ${lockBtnHtml}`;
         
         const cont = document.getElementById("subSubjectChaptersList");
-        if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">कोई आइटम नहीं</div>`;
+        if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">No Items</div>`;
         else {
             let h = "";
             chapters.forEach(ch => { 
@@ -619,8 +744,8 @@
                     <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong></div>
                     <div class="compact-item-actions">
                         <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
-                        <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${parent}', '${subName}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">एडिट</button>
-                        <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${parent}', '${subName}')">हटाएँ</button>
+                        <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${parent}', '${subName}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">Edit</button>
+                        <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${parent}', '${subName}')">Delete</button>
                     </div>
                 </div>`; 
             });
@@ -641,7 +766,6 @@
         
         getAllSections().forEach(sec => {
             const secData = getSectionData(sec.key);
-            // 🛑 STRICT SECURITY CHECK
             if(secData.isLocked === true) return; 
             
             if(secData.type === "normal") secData.data.forEach(ch => allGlobalItems.push({ ...ch, label: sec.key, sKey: sec.key, folderContentType: secData.contentType }));
@@ -659,12 +783,12 @@
                 let targetText = (item.name + " " + item.label).toLowerCase();
                 return searchParts.some(part => targetText.includes(part));
             });
-            document.getElementById("listTitle").innerHTML = `<i class="fas fa-search"></i> सर्च रिज़ल्ट (${filteredItems.length})`;
+            document.getElementById("listTitle").innerHTML = `<i class="fas fa-search"></i> Search Results (${filteredItems.length})`;
         } else {
-            document.getElementById("listTitle").innerHTML = `<i class="fas fa-layer-group"></i> सभी लिस्ट (संक्षिप्त सूची)`;
+            document.getElementById("listTitle").innerHTML = `<i class="fas fa-layer-group"></i> All Lists (Compact View)`;
         }
 
-        if(filteredItems.length === 0) { container.innerHTML = `<div style="color:#94a3b8; text-align:center; padding: 20px;">📭 कोई रिजल्ट नहीं मिला</div>`; return; }
+        if(filteredItems.length === 0) { container.innerHTML = `<div style="color:#94a3b8; text-align:center; padding: 20px;">📭 No Results Found</div>`; return; }
         
         let h = "";
         filteredItems.forEach(ch => {
@@ -676,17 +800,14 @@
                     </div>
                     <div class="compact-item-actions">
                         <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button> 
-                        <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${ch.sKey}', '${ch.subName||''}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">एडिट</button>
-                        <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${ch.sKey}', '${ch.subName||''}')">हटाएँ</button>
+                        <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${ch.sKey}', '${ch.subName||''}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">Edit</button>
+                        <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${ch.sKey}', '${ch.subName||''}')">Delete</button>
                     </div>
                   </div>`;
         });
         
-        if(searchQuery === "" && filteredItems.length > 3) {
-            container.innerHTML = `<div>${h}${h}</div>`; 
-        } else {
-            container.innerHTML = `<div>${h}</div>`;
-        }
+        if(searchQuery === "" && filteredItems.length > 3) { container.innerHTML = `<div>${h}${h}</div>`; } 
+        else { container.innerHTML = `<div>${h}</div>`; }
         
         attachOpenButtons(container);
     }
@@ -698,7 +819,7 @@
     }
 
     async function deleteItem(id, secKey, sub) {
-        if(!confirm("क्या आप सच में इसे हटाना चाहते हैं?")) return;
+        if(!confirm("Are you sure you want to delete this?")) return;
         const { type, data } = getSectionData(secKey);
         if(type === "normal") { 
             let nd = data.filter(c => c.id !== id); 
@@ -712,6 +833,7 @@
             } 
         }
         await saveData(); fullRefresh();
+        showToast("Item Deleted Successfully", "info");
         if (isPageActive === "subject") openSubject(currentOpenSubject, true);
         else if (isPageActive === "subSubject") openSubSubject(currentOpenSubject, currentOpenSubSubject, true);
     }
@@ -729,10 +851,10 @@
         document.getElementById("adminItemType").value = itemType || "default"; 
         
         let addBtn = document.getElementById("addChapterAdminBtn");
-        addBtn.innerHTML = `<i class="fas fa-save"></i> अपडेट करें`;
+        addBtn.innerHTML = `<i class="fas fa-save"></i> Update Data`;
         addBtn.style.background = "#2563eb"; 
         document.getElementById("cancelEditBtn").style.display = "block";
-        document.getElementById("adminFormTitle").innerHTML = `<i class="fas fa-edit"></i> डेटा एडिट करें`;
+        document.getElementById("adminFormTitle").innerHTML = `<i class="fas fa-edit"></i> Edit Data`;
         
         document.getElementById("adminPanel").classList.add("show-admin");
         window.location.hash = ""; 
@@ -749,45 +871,71 @@
         document.getElementById("adminItemType").value = "default";
         
         let addBtn = document.getElementById("addChapterAdminBtn");
-        addBtn.innerHTML = `<i class="fas fa-plus"></i> जोड़ें`;
+        addBtn.innerHTML = `<i class="fas fa-plus"></i> Add Item`;
         addBtn.style.background = "#f97316";
         document.getElementById("cancelEditBtn").style.display = "none";
-        document.getElementById("adminFormTitle").innerHTML = `<i class="fas fa-plus-circle"></i> नया डेटा जोड़ें`;
+        document.getElementById("adminFormTitle").innerHTML = `<i class="fas fa-plus-circle"></i> Add New Data`;
     }
 
-    // 🔐 Admin Lock/Unlock Logic
+    // 🔴 🆕 ADMIN SECURE UNLOCK LOGIC
+    let adminUnlockTargetKey = null;
+
     document.getElementById("updateLockBtn").addEventListener("click", async () => {
         if(!isAdminLoggedIn) return;
         let secKey = document.getElementById("adminLockSelect").value;
         let pass = document.getElementById("adminLockPassword").value.trim();
         
+        if(pass === "") {
+            showToast("Please enter a password to lock!", "error");
+            return;
+        }
+
         if(!appData.customSections[secKey]) appData.customSections[secKey] = {};
-        let secData = appData.customSections[secKey];
+        appData.customSections[secKey].isLocked = true;
+        appData.customSections[secKey].password = btoa(pass); 
         
-        // If unlocking an already locked folder, ask for the old password first!
-        if (secData.isLocked && pass === "") {
-            let oldPass = prompt(`इस फोल्डर को हमेशा के लिए अनलॉक करने के लिए इसका पुराना (करंट) पासवर्ड डालें:`);
-            if (oldPass === null) return; // User pressed Cancel
-            if (btoa(oldPass) !== secData.password) {
-                alert("❌ गलत पासवर्ड! आप इसे अनलॉक नहीं कर सकते।");
-                return;
-            }
-            secData.isLocked = false;
-            secData.password = "";
-            alert(`"${secKey}" अब हमेशा के लिए अनलॉक हो गया है! इसका डेटा लिस्ट में दिखने लगेगा।`);
-        } else if (pass !== "") {
-            // Locking or changing password
-            secData.isLocked = true;
-            secData.password = btoa(pass); 
-            alert(`🔒 "${secKey}" सुरक्षित रूप से नए पासवर्ड के साथ लॉक हो गया है!`);
-        } else {
-            alert(`"${secKey}" पहले से ही अनलॉक है।`);
+        showToast(`🔒 "${secKey}" Locked Successfully!`, "success");
+        await saveData(); fullRefresh();
+        document.getElementById("adminLockPassword").value = "";
+    });
+
+    document.getElementById("unlockFolderBtn").addEventListener("click", async () => {
+        if(!isAdminLoggedIn) return;
+        let secKey = document.getElementById("adminLockSelect").value;
+        
+        if(!appData.customSections[secKey] || !appData.customSections[secKey].isLocked) {
+            showToast(`"${secKey}" is already unlocked!`, "info");
+            return;
+        }
+
+        // Open custom Unlock Prompt Modal
+        adminUnlockTargetKey = secKey;
+        document.getElementById("adminUnlockPassInput").value = "";
+        document.getElementById("adminUnlockModal").classList.add("active");
+        window.location.hash = "adminUnlock";
+    });
+
+    document.getElementById("cancelAdminUnlockBtn").addEventListener("click", () => {
+        history.back();
+    });
+
+    document.getElementById("submitAdminUnlockBtn").addEventListener("click", async () => {
+        let pass = document.getElementById("adminUnlockPassInput").value;
+        let secData = appData.customSections[adminUnlockTargetKey];
+
+        if (btoa(pass) !== secData.password) {
+            showToast("❌ Incorrect Password!", "error");
             return;
         }
         
-        await saveData(); 
-        fullRefresh();
-        document.getElementById("adminLockPassword").value = "";
+        secData.isLocked = false;
+        secData.password = "";
+        
+        document.getElementById("adminUnlockModal").classList.remove("active");
+        history.replaceState(null, null, window.location.pathname); 
+        
+        showToast(`🔓 "${adminUnlockTargetKey}" Permanently Unlocked!`, "success");
+        await saveData(); fullRefresh();
     });
 
     function updateAdminSelect() {
@@ -802,11 +950,11 @@
     function toggleGkField() { let sec = document.getElementById("adminSubjectSelect").value; let { type } = getSectionData(sec); document.getElementById("gkSubSubjectGroup").style.display = type === "nested" ? "block" : "none"; }
     
     async function addChapter() {
-        if(!isAdminLoggedIn) return alert("लॉगिन करें");
+        if(!isAdminLoggedIn) return showToast("Please login first!", "error");
         let name = document.getElementById("adminChapterName").value.trim(), url = document.getElementById("adminPdfUrl").value.trim(), section = document.getElementById("adminSubjectSelect").value;
         let itemType = document.getElementById("adminItemType").value; 
 
-        if(!name || !url) return alert("सभी भरें");
+        if(!name || !url) return showToast("Please fill all details!", "error");
         if(!url.startsWith("http")) url = "https://" + url;
         
         const { type, data } = getSectionData(section);
@@ -824,12 +972,12 @@
                     list[itemIndex].itemType = itemType; 
                 }
             }
-            await saveData(); fullRefresh(); resetEditMode(); alert("सफलतापूर्वक अपडेट हो गया!");
+            await saveData(); fullRefresh(); resetEditMode(); showToast("Updated Successfully!", "success");
             return;
         }
 
         if(type === "nested") {
-            if(!subN) return alert("सब-सेक्शन नाम");
+            if(!subN) return showToast("Sub-Section Name Required!", "error");
             if(!data[subN]) data[subN] = [];
             data[subN].push({ id: genId(), name, url, itemType });
             if(DEFAULT_SECTIONS.includes(section)) appData[section] = data; else appData.customSections[section].data = data;
@@ -837,15 +985,19 @@
             data.push({ id: genId(), name, url, itemType });
             if(DEFAULT_SECTIONS.includes(section)) appData[section] = data; else appData.customSections[section].data = data;
         }
-        await saveData(); fullRefresh(); alert("लाइव सेव हो गया!");
+        
+        // Add to Notifications
+        addNotification(section, name);
+
+        await saveData(); fullRefresh(); showToast("Saved Successfully!", "success");
         document.getElementById("adminChapterName").value = ""; document.getElementById("adminPdfUrl").value = ""; document.getElementById("gkSubSubjectName").value = "";
     }
     
     async function createNewSection() {
         if(!isAdminLoggedIn) return;
         let name = document.getElementById("newSectionName").value.trim();
-        if(!name) return alert("नाम लिखें");
-        if(DEFAULT_SECTIONS.includes(name) || appData.customSections[name]) return alert("पहले से है");
+        if(!name) return showToast("Name is required!", "error");
+        if(DEFAULT_SECTIONS.includes(name) || appData.customSections[name]) return showToast("Folder already exists!", "error");
         
         let type = document.getElementById("newSectionType").value;
         let cType = document.getElementById("newSectionContentType").value; 
@@ -867,7 +1019,7 @@
         document.getElementById("newSectionName").value = ""; 
         document.getElementById("newSectionIcon").value = ""; 
         document.getElementById("newSectionPassword").value = ""; 
-        alert(cPass ? `🔒 प्राइवेट सेक्शन "${name}" लाइव बन गया!` : `सेक्शन "${name}" लाइव बन गया!`);
+        showToast(cPass ? `🔒 Private Folder Created!` : `Folder Created!`, "success");
     }
     
     function renderManageSections() {
@@ -875,10 +1027,10 @@
         let html = "";
         getAllSections().forEach(sec => {
             if(sec.isDefault) html += `<span style="background:#334155; padding:4px 12px; border-radius:4px;">🔒 ${sec.key}</span>`;
-            else html += `<span style="background:#991b1b; padding:4px 12px; border-radius:4px;">${sec.key} ${sec.isLocked?'(🔒)':''} <button class="delete-section-btn" data-sec="${sec.key}" style="background:black; color:white; border:none; margin-left:6px; padding: 2px 6px; cursor:pointer; border-radius:2px;">हटाएं</button></span>`;
+            else html += `<span style="background:#991b1b; padding:4px 12px; border-radius:4px;">${sec.key} ${sec.isLocked?'(🔒)':''} <button class="delete-section-btn" data-sec="${sec.key}" style="background:black; color:white; border:none; margin-left:6px; padding: 2px 6px; cursor:pointer; border-radius:2px;">Delete</button></span>`;
         });
         cont.innerHTML = html;
-        document.querySelectorAll(".delete-section-btn").forEach(btn => btn.addEventListener("click", async () => { let s = btn.getAttribute("data-sec"); if(confirm(`"${s}" डिलीट? सारा अंदर का डेटा भी उड़ जाएगा!`)) { delete appData.customSections[s]; await saveData(); fullRefresh(); } }));
+        document.querySelectorAll(".delete-section-btn").forEach(btn => btn.addEventListener("click", async () => { let s = btn.getAttribute("data-sec"); if(confirm(`Delete "${s}"? All data inside will be lost!`)) { delete appData.customSections[s]; await saveData(); fullRefresh(); showToast("Folder Deleted", "info");} }));
     }
     
     function fullRefresh() { renderHomeCards(); renderCompactMasterList(document.getElementById("globalSearchInput").value); updateAdminSelect(); renderManageSections(); if(isAdminLoggedIn) document.getElementById("adminPanel").classList.add("show-admin"); else document.getElementById("adminPanel").classList.remove("show-admin"); }
@@ -887,41 +1039,49 @@
     function clearLoginFields() { document.getElementById("loginUserId").value = ""; document.getElementById("loginPassword").value = ""; }
     
     document.getElementById("adminLockBtn").addEventListener("click", () => {
-        if(isAdminLoggedIn){ isAdminLoggedIn=false; fullRefresh(); alert("लॉग आउट"); clearLoginFields(); resetEditMode(); }
+        if(isAdminLoggedIn){ isAdminLoggedIn=false; fullRefresh(); showToast("Logged Out Successfully", "info"); clearLoginFields(); resetEditMode(); }
         else { clearLoginFields(); window.location.hash = "login"; modal.classList.add("active"); }
     });
     
     document.getElementById("submitLoginBtn").addEventListener("click", () => {
         let u = document.getElementById("loginUserId").value.trim(), p = document.getElementById("loginPassword").value.trim();
         if(btoa(u) === ENCODED_ID && btoa(p) === ENCODED_PW){ 
-            isAdminLoggedIn=true; history.back(); fullRefresh(); alert("लॉगिन सफल!"); clearLoginFields(); 
-        } else alert("गलत आईडी या पासवर्ड!");
+            isAdminLoggedIn=true; history.back(); fullRefresh(); showToast("Login Successful!", "success"); clearLoginFields(); 
+        } else {
+            showToast("Incorrect ID or Password!", "error");
+        }
     });
     
-    document.getElementById("logoutAdminBtn")?.addEventListener("click", () => { isAdminLoggedIn=false; fullRefresh(); alert("लॉगआउट"); clearLoginFields(); resetEditMode(); });
+    document.getElementById("logoutAdminBtn")?.addEventListener("click", () => { isAdminLoggedIn=false; fullRefresh(); showToast("Logged Out", "info"); clearLoginFields(); resetEditMode(); });
     
-    // 🛠️ HASH ROUTING (NATIVE BACK BUTTON FIX + AUTO-LOCK LOGIC)
     window.addEventListener("hashchange", () => {
         let hash = window.location.hash;
+        
+        // Hide all modals first
+        document.getElementById("subjectPage").classList.remove("active");
+        document.getElementById("subSubjectPage").classList.remove("active");
+        document.getElementById("loginModal").classList.remove("active");
+        document.getElementById("passwordModal").classList.remove("active");
+        document.getElementById("adminUnlockModal").classList.remove("active");
+        document.getElementById("notifModal").classList.remove("active");
+        
         if(hash === "") {
-            document.getElementById("subjectPage").classList.remove("active");
-            document.getElementById("subSubjectPage").classList.remove("active");
-            document.getElementById("loginModal").classList.remove("active");
-            document.getElementById("passwordModal").classList.remove("active");
             isPageActive = "home";
-            
-            // 🔒 AUTO LOCK: होम पेज पर आते ही सारे खुले हुए प्राइवेट फोल्डर वापस लॉक हो जायेंगे
-            unlockedSession = {}; 
+            unlockedSession = {}; // Auto-lock everything when going home
         } else if(hash === "#subject") {
-            document.getElementById("subSubjectPage").classList.remove("active");
-            document.getElementById("loginModal").classList.remove("active");
-            document.getElementById("passwordModal").classList.remove("active");
             document.getElementById("subjectPage").classList.add("active");
             isPageActive = "subject";
+        } else if(hash === "#subsubject") {
+            document.getElementById("subSubjectPage").classList.add("active");
+            isPageActive = "subSubject";
         } else if(hash === "#login") {
             document.getElementById("loginModal").classList.add("active");
         } else if(hash === "#password") {
             document.getElementById("passwordModal").classList.add("active");
+        } else if(hash === "#adminUnlock") {
+            document.getElementById("adminUnlockModal").classList.add("active");
+        } else if(hash === "#notifications") {
+            document.getElementById("notifModal").classList.add("active");
         }
     });
 
