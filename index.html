@@ -67,7 +67,6 @@
         
         .date-filter-box { display: flex; align-items: center; gap: 8px; background: #334155; padding: 5px 10px; border-radius: 6px; }
         .date-filter-box input[type="date"] { background: transparent; border: none; color: #10b981; font-weight: bold; outline: none; cursor: pointer; font-family: 'Inter'; font-size: 0.85rem;}
-        /* Hide calendar icon on webkit to make it cleaner */
         .date-filter-box input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(1) sepia(1) saturate(5) hue-rotate(100deg); }
 
         /* ========= APP STYLE GRID ========= */
@@ -403,8 +402,7 @@
         if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if(audioCtx.state === 'suspended') audioCtx.resume();
     }
-    document.addEventListener('click', unlockAudio, {once:true});
-    document.addEventListener('touchstart', unlockAudio, {once:true});
+    ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => document.addEventListener(evt, unlockAudio, {once:true}));
 
     function playNotificationSound() {
         try {
@@ -444,7 +442,6 @@
     function addNotification(section, chapterName) {
         if(!appData.notifications) appData.notifications = [];
         let timeStr = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-        // Adding Timestamp for local clear feature
         appData.notifications.unshift({ text: `${section} - ${chapterName}`, time: timeStr, timestamp: Date.now() });
         if(appData.notifications.length > 15) appData.notifications.pop(); 
     }
@@ -570,6 +567,29 @@
         }
     });
 
+    // 🔔 CHECK INITIAL LOAD NOTIFICATIONS
+    function checkUnreadNotifications() {
+        let localClearedTime = parseInt(localStorage.getItem('clearedNotifsTime') || "0");
+        let unread = (appData.notifications || []).filter(n => (n.timestamp || 0) > localClearedTime).length;
+        let badge = document.getElementById("notifBadgeCounter");
+        if(unread > 0) {
+            unreadNotifCount = unread;
+            badge.innerText = unreadNotifCount;
+            badge.style.display = "flex";
+        } else {
+            badge.style.display = "none";
+        }
+    }
+
+    function triggerNotificationAlert() {
+        checkUnreadNotifications();
+        let bell = document.getElementById("bellIconBtn");
+        bell.classList.remove("ring-anim");
+        void bell.offsetWidth; 
+        bell.classList.add("ring-anim");
+        playNotificationSound();
+    }
+
     async function loadData() {
         try {
             document.getElementById("loadingScreen").style.display = "flex";
@@ -582,6 +602,7 @@
             document.getElementById("loadingScreen").style.display = "none";
             document.getElementById("homeContainer").style.display = "block";
             fullRefresh();
+            checkUnreadNotifications(); // 🆕 Check on load
         } catch (error) { document.getElementById("loadingText").innerText = "Network Error!"; }
     }
 
@@ -593,15 +614,16 @@
             let isNewUpdate = false;
             if(storedData.notifications && appData.notifications) {
                 let latestStored = storedData.notifications[0];
-                let latestLocal = appData.notifications[0];
+                let latestLocal = appData.notifications.length > 0 ? appData.notifications[0] : null;
                 
-                // Compare timestamps to find if update is fresh
                 if(latestStored && (!latestLocal || latestStored.timestamp > latestLocal.timestamp)) {
                     let localClearedTime = parseInt(localStorage.getItem('clearedNotifsTime') || "0");
                     if (latestStored.timestamp > localClearedTime) {
                         isNewUpdate = true;
                     }
                 }
+            } else if (storedData.notifications && storedData.notifications.length > 0) {
+                isNewUpdate = true;
             }
 
             if (JSON.stringify(storedData) !== JSON.stringify(appData)) {
@@ -614,17 +636,9 @@
                 if (isPageActive === "subject" && currentOpenSubject) openSubject(currentOpenSubject, true);
                 else if (isPageActive === "subSubject" && currentOpenSubject && currentOpenSubSubject) openSubSubject(currentOpenSubject, currentOpenSubSubject, true);
                 
-                if(isNewUpdate && !isAdminLoggedIn) {
-                    unreadNotifCount++;
-                    let badge = document.getElementById("notifBadgeCounter");
-                    badge.innerText = unreadNotifCount;
-                    badge.style.display = "flex";
-                    let bell = document.getElementById("bellIconBtn");
-                    bell.classList.remove("ring-anim");
-                    void bell.offsetWidth; 
-                    bell.classList.add("ring-anim");
-                    playNotificationSound();
-                    showToast("New Study Material Added!", "success");
+                if(isNewUpdate) {
+                    triggerNotificationAlert();
+                    showToast("New Study Material Added!", "info");
                 }
             }
         } catch (error) {}
@@ -771,7 +785,7 @@
                 let h = "";
                 chapters.forEach(ch => { 
                     let display = getItemDisplayDetails(ch.itemType, contentType);
-                    let timeBadge = ch.timestamp ? `<small style="display:block; color:#94a3b8; font-size:0.7rem; margin-top:3px;"><i class="fas fa-clock"></i> ${formatTime(ch.timestamp)}</small>` : '';
+                    let timeBadge = ch.timestamp ? `<small style="display:block; color:#94a3b8; font-size:0.75rem; margin-top:4px;"><i class="fas fa-clock"></i> ${formatTime(ch.timestamp)}</small>` : '';
                     
                     h += `<div class="chapter-link-card">
                         <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong>${timeBadge}</div>
@@ -807,7 +821,7 @@
             let h = "";
             chapters.forEach(ch => { 
                 let display = getItemDisplayDetails(ch.itemType, contentType);
-                let timeBadge = ch.timestamp ? `<small style="display:block; color:#94a3b8; font-size:0.7rem; margin-top:3px;"><i class="fas fa-clock"></i> ${formatTime(ch.timestamp)}</small>` : '';
+                let timeBadge = ch.timestamp ? `<small style="display:block; color:#94a3b8; font-size:0.75rem; margin-top:4px;"><i class="fas fa-clock"></i> ${formatTime(ch.timestamp)}</small>` : '';
                 
                 h += `<div class="chapter-link-card">
                     <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong>${timeBadge}</div>
@@ -841,25 +855,25 @@
             else for(let sub in secData.data) secData.data[sub].forEach(ch => allGlobalItems.push({ ...ch, label: `${sec.key} (${sub})`, sKey: sec.key, subName: sub, folderContentType: secData.contentType }));
         });
 
-        let filteredItems = allGlobalItems;
-        
-        // Date Search Logic
+        // 📅 Date Filtering Logic First
         if (dateQuery) {
-            let selectedDateObj = new Date(dateQuery);
-            let selectedDateStr = selectedDateObj.toLocaleDateString('en-GB'); 
-            filteredItems = filteredItems.filter(item => {
+            let selectedDateStr = new Date(dateQuery).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}); 
+            allGlobalItems = allGlobalItems.filter(item => {
                 if(!item.timestamp) return false;
-                return new Date(item.timestamp).toLocaleDateString('en-GB') === selectedDateStr;
+                let itemDateStr = new Date(item.timestamp).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+                return itemDateStr === selectedDateStr;
             });
         }
 
-        // Text Search Logic
+        let filteredItems = allGlobalItems;
+
+        // 🔍 Text Search Logic
         if(searchQuery.trim() !== "") {
             let q = searchQuery.toLowerCase();
             let extendedQuery = q;
             for(let key in hinglishDict) { if(q.includes(key)) extendedQuery += " " + hinglishDict[key]; }
             let searchParts = extendedQuery.split(" ").filter(p => p.trim() !== "");
-            filteredItems = filteredItems.filter(item => {
+            filteredItems = allGlobalItems.filter(item => {
                 let targetText = (item.name + " " + item.label).toLowerCase();
                 return searchParts.some(part => targetText.includes(part));
             });
@@ -873,7 +887,7 @@
         let h = "";
         filteredItems.forEach(ch => {
             let display = getItemDisplayDetails(ch.itemType, ch.folderContentType);
-            let timeBadge = ch.timestamp ? `<small style="display:block; color:#94a3b8; font-size:0.7rem; margin-top:3px;"><i class="fas fa-calendar-alt"></i> ${formatTime(ch.timestamp)}</small>` : '';
+            let timeBadge = ch.timestamp ? `<small style="display:block; color:#94a3b8; font-size:0.75rem; margin-top:4px;"><i class="fas fa-calendar-alt"></i> ${formatTime(ch.timestamp)}</small>` : '';
             
             h += `<div class="compact-chapter-item">
                     <div class="compact-item-text">
@@ -1053,7 +1067,6 @@
                     list[itemIndex].name = name;
                     list[itemIndex].url = url;
                     list[itemIndex].itemType = itemType; 
-                    // Keep old timestamp if editing
                 }
             }
             await saveData(); fullRefresh(); resetEditMode(); showToast("Updated Successfully!", "success");
@@ -1070,10 +1083,10 @@
             if(DEFAULT_SECTIONS.includes(section)) appData[section] = data; else appData.customSections[section].data = data;
         }
         
-        // 🛑 🆕 NOTIFICATION FIX: सिर्फ तभी नोटिफिकेश भेजें जब फोल्डर लॉक न हो!
         const secDataCheck = getSectionData(section);
         if(!secDataCheck.isLocked) {
             addNotification(section, name);
+            triggerNotificationAlert(); // 🔔 Immediate Alert for Admin
         }
 
         await saveData(); fullRefresh(); showToast("Saved Successfully!", "success");
@@ -1150,6 +1163,7 @@
     window.addEventListener("hashchange", () => {
         let hash = window.location.hash;
         
+        // Hide all modals first
         document.getElementById("subjectPage").classList.remove("active");
         document.getElementById("subSubjectPage").classList.remove("active");
         document.getElementById("loginModal").classList.remove("active");
@@ -1160,7 +1174,6 @@
         if(hash === "") {
             isPageActive = "home";
             unlockedSession = {}; 
-            // 📅 🆕 Calendar reset when going Home
             document.getElementById("dateSearchInput").value = "";
             document.getElementById("clearDateBtn").style.display = "none";
             renderCompactMasterList(document.getElementById("globalSearchInput").value, "");
