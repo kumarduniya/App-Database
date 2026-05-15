@@ -55,7 +55,6 @@
         .subject-card { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s ease; width: 100%; }
         .subject-card:hover { transform: translateY(-5px); }
         
-        /* 🔴 यहाँ से overflow: hidden; हटा दिया गया है ताकि लाल बैज न कटे 🔴 */
         .app-icon-box { width: 90px; height: 90px; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 2.8rem; color: white; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3); position: relative; }
 
         .app-icon-box[data-section="Hindi"] { background: linear-gradient(135deg, #1e3c72, #2a5298); }
@@ -229,9 +228,26 @@
 
 <div id="subjectPage" class="page-overlay"><div class="detail-header"><button class="back-home-btn" id="backHomeBtn"><i class="fas fa-arrow-left"></i> होम</button><div class="subject-title-lg" id="detailSubjectTitle"></div></div><div id="subjectDetailContent" class="chapters-container"></div><div class="bottom-back-container" style="margin-top:20px; text-align:center;"><button class="bottom-back-btn" id="bottomBackHomeBtn"><i class="fas fa-home"></i> होम पेज</button></div></div>
 <div id="subSubjectPage" class="page-overlay"><div class="detail-header"><button class="back-home-btn" id="backToSubjectsBtn"><i class="fas fa-arrow-left"></i> विषय सूची</button><div class="subject-title-lg" id="subSubjectTitle"></div></div><div id="subSubjectChaptersList" class="chapters-container"></div><div class="bottom-back-container" style="margin-top:20px; text-align:center; display: flex; gap: 1rem; justify-content: center;"><button class="bottom-back-btn" id="subBackHomeBtn"><i class="fas fa-home"></i> होम</button><button class="bottom-back-btn" id="subBackToListBtn"><i class="fas fa-list"></i> विषय सूची</button></div></div>
-<div id="loginModal" class="modal"><div class="login-box"><i class="fas fa-user-cog" style="font-size: 2.5rem; color:#f97316; margin-bottom: 10px;"></i><h3>एडमिन लॉगिन</h3><input type="text" id="loginUserId" placeholder="मोबाइल नंबर"><input type="password" id="loginPassword" placeholder="पासवर्ड"><button class="btn-primary" id="submitLoginBtn" style="width:100%;">लॉगिन करें</button></div></div>
+
+<div id="loginModal" class="modal">
+    <div class="login-box">
+        <i class="fas fa-user-cog" style="font-size: 2.5rem; color:#f97316; margin-bottom: 10px;"></i>
+        <h3>एडमिन लॉगिन</h3>
+        <input type="text" id="loginUserId" placeholder="मोबाइल नंबर">
+        <input type="password" id="loginPassword" placeholder="पासवर्ड">
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn-primary" id="closeLoginBtn" style="background: #475569; width: 50%;">वापस</button>
+            <button class="btn-primary" id="submitLoginBtn" style="width: 50%;">लॉगिन करें</button>
+        </div>
+    </div>
+</div>
 
 <script>
+    // 🛠️ HARDWARE BACK BUTTON LOGIC (पेज लोड होने पर अगर पुराना हैश है तो हटाओ)
+    if (window.location.hash) {
+        history.replaceState(null, null, window.location.pathname);
+    }
+
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE6NajCOnS0lZA-1ITRi72wL4eJjSetMr_zcOCsoijO4CNHWEHRq0TUg0H46oR0avBQQ/exec"; 
     const ENCODED_ID = "ODI3MzY4NDkzOQ=="; 
     const ENCODED_PW = "QW5rdXNoQDEyMzFAMTIz"; 
@@ -395,6 +411,9 @@
 
     function openSubject(secKey) {
         currentOpenSubject = secKey; isPageActive = "subject";
+        // 🛠️ Phone Back Button Hack
+        window.location.hash = "subject";
+
         const { type, contentType, data } = getSectionData(secKey);
         const iconHtml = getIconHTML(contentType);
         const cont = document.getElementById("subjectDetailContent");
@@ -441,6 +460,9 @@
 
     function openSubSubject(parent, subName) {
         currentParentSection = parent; currentOpenSubject = parent; currentOpenSubSubject = subName; isPageActive = "subSubject";
+        // 🛠️ Phone Back Button Hack
+        window.location.hash = "subsubject";
+
         const { data, contentType } = getSectionData(parent);
         const iconHtml = getIconHTML(contentType);
         const chapters = data[subName] || [];
@@ -610,22 +632,55 @@
     
     document.getElementById("adminLockBtn").addEventListener("click", () => {
         if(isAdminLoggedIn){ isAdminLoggedIn=false; fullRefresh(); alert("लॉग आउट"); clearLoginFields(); }
-        else { clearLoginFields(); modal.classList.add("active"); }
+        else { 
+            clearLoginFields(); 
+            window.location.hash = "login"; // 🛠️ URL में हैश जोड़ो ताकि बैक बटन काम करे
+            modal.classList.add("active"); 
+        }
     });
     
     document.getElementById("submitLoginBtn").addEventListener("click", () => {
         let u = loginIdField.value.trim(), p = loginPwField.value.trim();
-        if(btoa(u) === ENCODED_ID && btoa(p) === ENCODED_PW){ isAdminLoggedIn=true; modal.classList.remove("active"); fullRefresh(); alert("लॉगिन सफल!"); clearLoginFields(); }
+        if(btoa(u) === ENCODED_ID && btoa(p) === ENCODED_PW){ 
+            isAdminLoggedIn=true; 
+            history.back(); // 🛠️ लॉगिन सक्सेस होते ही नेटिव तरीके से मॉडल हटाओ
+            fullRefresh(); 
+            alert("लॉगिन सफल!"); 
+            clearLoginFields(); 
+        }
         else alert("गलत आईडी या पासवर्ड!");
     });
     
     document.getElementById("logoutAdminBtn")?.addEventListener("click", () => { isAdminLoggedIn=false; fullRefresh(); alert("लॉगआउट"); clearLoginFields(); });
     
-    document.getElementById("backHomeBtn").addEventListener("click", () => { document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
-    document.getElementById("bottomBackHomeBtn").addEventListener("click", () => { document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
-    document.getElementById("backToSubjectsBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); openSubject(currentParentSection); });
-    document.getElementById("subBackHomeBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); document.getElementById("subjectPage").classList.remove("active"); isPageActive = "home"; });
-    document.getElementById("subBackToListBtn").addEventListener("click", () => { document.getElementById("subSubjectPage").classList.remove("active"); openSubject(currentParentSection); });
+    // 🛠️ HASH ROUTING EVENT LISTENER (असली जादू यहीं है)
+    window.addEventListener("hashchange", () => {
+        let hash = window.location.hash;
+        if(hash === "") {
+            document.getElementById("subjectPage").classList.remove("active");
+            document.getElementById("subSubjectPage").classList.remove("active");
+            document.getElementById("loginModal").classList.remove("active");
+            isPageActive = "home";
+        } else if(hash === "#subject") {
+            document.getElementById("subSubjectPage").classList.remove("active");
+            document.getElementById("loginModal").classList.remove("active");
+            document.getElementById("subjectPage").classList.add("active");
+            isPageActive = "subject";
+        } else if(hash === "#subsubject") {
+            // openSubSubject function handles adding active class
+        } else if(hash === "#login") {
+            document.getElementById("loginModal").classList.add("active");
+        }
+    });
+
+    // 🛠️ UI CLOSE BUTTONS (अब ये बटन सीधा फोन के बैक बटन वाला काम करेंगे)
+    document.getElementById("closeLoginBtn").addEventListener("click", () => { history.back(); });
+    document.getElementById("backHomeBtn").addEventListener("click", () => { history.back(); });
+    document.getElementById("bottomBackHomeBtn").addEventListener("click", () => { history.back(); });
+    document.getElementById("backToSubjectsBtn").addEventListener("click", () => { history.back(); });
+    document.getElementById("subBackToListBtn").addEventListener("click", () => { history.back(); });
+    // सब-सब्जेक्ट से सीधा होम पर जाने के लिए हैश को पूरा खाली करना होगा
+    document.getElementById("subBackHomeBtn").addEventListener("click", () => { window.location.hash = ""; }); 
     
     document.getElementById("addChapterAdminBtn").addEventListener("click", addChapter);
     document.getElementById("createSectionBtn").addEventListener("click", createNewSection);
