@@ -144,7 +144,7 @@
         .btn-primary { background: #f97316; border: none; border-radius: 4px; padding: 10px 24px; font-weight: bold; cursor: pointer; color: white; width:100%;}
         .section-manager { margin-top: 1.5rem; border-top: 1px solid #475569; padding-top: 1rem; }
 
-        /* ========= MODALS (LOGIN & PASSWORD & ADMIN UNLOCK & NOTIF) ========= */
+        /* ========= MODALS ========= */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; visibility: hidden; opacity: 0; transition: 0.2s; }
         .modal.active { visibility: visible; opacity: 1; }
         .login-box { background: #1e293b; padding: 2.5rem 2rem; max-width: 380px; width: 90%; border-left: 6px solid #f97316; border-radius: 8px; text-align: center; color: white; box-shadow: 0 15px 30px rgba(0,0,0,0.5);}
@@ -164,7 +164,7 @@
 
 <div id="loadingScreen">
     <div class="loader-spinner"></div>
-    <h3 id="loadingText">डेटा लोड हो रहा है...</h3>
+    <h3 id="loadingText">Loading Data...</h3>
 </div>
 
 <div class="app-container" id="homeContainer">
@@ -200,7 +200,7 @@
 
     <div id="adminPanel" class="admin-panel-area">
         <button id="logoutAdminBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        <h3 id="adminFormTitle"><i class="fas fa-plus-circle"></i> नया डेटा जोड़ें</h3>
+        <h3 id="adminFormTitle"><i class="fas fa-plus-circle"></i> Add New Data</h3>
         <div class="form-flex">
             <div class="form-group"><input type="text" id="adminChapterName" placeholder="फाइल/वीडियो/इमेज का नाम"></div>
             <div class="form-group"><input type="url" id="adminPdfUrl" placeholder="लिंक (URL)"></div>
@@ -220,7 +220,7 @@
             </div>
 
             <div style="width:100%; display:flex; gap:10px;">
-                <button class="btn-primary" id="addChapterAdminBtn" style="flex:1;"><i class="fas fa-plus"></i> जोड़ें</button>
+                <button class="btn-primary" id="addChapterAdminBtn" style="flex:1;"><i class="fas fa-plus"></i> Add Item</button>
                 <button class="btn-primary" id="cancelEditBtn" style="background:#475569; display:none; flex:0.4;">Cancel</button>
             </div>
         </div>
@@ -264,7 +264,7 @@
                 <div class="form-group" style="width: 100%;">
                     <input type="text" id="newSectionIcon" placeholder="आइकॉन क्लास या डायरेक्ट Image URL पेस्ट करें">
                 </div>
-                <button class="btn-primary" id="createSectionBtn"><i class="fas fa-folder-plus"></i> फोल्डर बनाएं</button>
+                <button class="btn-primary" id="createSectionBtn"><i class="fas fa-folder-plus"></i> Create Folder</button>
             </div>
             <h4>🗑️ सेक्शन प्रबंधन</h4>
             <div id="manageSectionsList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
@@ -365,7 +365,7 @@
     let unreadNotifCount = 0;
 
     const hinglishDict = {
-        "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स", "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान", "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास", "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक", "book": "किताब", "document": "डॉक्यूमेंट", "my": "माय", "image": "इमेज", "photo": "फोटो"
+        "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स", "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान", "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास", "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक", "book": "किताब", "document": "डॉक्यूमेंट", "my": "माय"
     };
 
     // 🚀 BEAUTIFUL TOAST NOTIFICATION SYSTEM
@@ -385,30 +385,45 @@
         }, 3000);
     }
 
-    // 🎵 WEB AUDIO API BEEP (देसी जुगाड़: No MP3 needed)
+    // 🎵 SOUND & VIBRATION (Web Audio API - Requires 1 user interaction)
+    let audioCtx = null;
+    function unlockAudio() {
+        if(!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    document.addEventListener('click', unlockAudio, {once:true});
+    document.addEventListener('touchstart', unlockAudio, {once:true});
+
     function playNotificationSound() {
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gainNode = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(880, ctx.currentTime); // High pitch A5
-            gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // Soft volume
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
-            osc.connect(gainNode);
-            gainNode.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.5);
-        } catch(e) { console.log("Audio not supported or blocked by browser."); }
+            // Hardware Vibration
+            if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+            
+            // Beep Sound
+            if(audioCtx) {
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch A5
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            }
+        } catch(e) { console.log("Audio/Vibration blocked by browser."); }
     }
 
-    // 🔔 NOTIFICATION SYSTEM LOGIC
+    // 🔔 NOTIFICATION LOGIC
     function addNotification(section, chapterName) {
         if(!appData.notifications) appData.notifications = [];
         let timeStr = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-        // Max 15 notifications history
         appData.notifications.unshift({ text: `${section} - ${chapterName}`, time: timeStr });
-        if(appData.notifications.length > 15) appData.notifications.pop();
+        if(appData.notifications.length > 15) appData.notifications.pop(); // Keep only last 15
     }
 
     function renderNotifications() {
@@ -435,7 +450,6 @@
     }
 
     function closeNotifications() {
-        document.getElementById("notifModal").classList.remove("active");
         history.back();
     }
 
@@ -504,7 +518,7 @@
             document.getElementById("passwordModal").classList.remove("active");
             history.replaceState(null, null, window.location.pathname); 
             openSubject(pendingSubjectToOpen);
-            showToast("Folder Unlocked!", "success");
+            showToast("Folder Unlocked Successfully!", "success");
         } else {
             showToast("Incorrect Password!", "error");
         }
@@ -530,7 +544,7 @@
             const response = await fetch(SCRIPT_URL);
             const storedData = await response.json();
             
-            // Check if there are new notifications
+            // Check for new notifications to ring bell
             let oldNotifCount = appData.notifications ? appData.notifications.length : 0;
             let newNotifCount = storedData.notifications ? storedData.notifications.length : 0;
             let isNewUpdate = false;
@@ -551,7 +565,7 @@
                 if (isPageActive === "subject" && currentOpenSubject) openSubject(currentOpenSubject, true);
                 else if (isPageActive === "subSubject" && currentOpenSubject && currentOpenSubSubject) openSubSubject(currentOpenSubject, currentOpenSubSubject, true);
                 
-                // Ring bell and show badge if new update detected!
+                // Ring Bell
                 if(isNewUpdate && !isAdminLoggedIn) {
                     unreadNotifCount++;
                     let badge = document.getElementById("notifBadgeCounter");
@@ -559,10 +573,10 @@
                     badge.style.display = "flex";
                     let bell = document.getElementById("bellIconBtn");
                     bell.classList.remove("ring-anim");
-                    void bell.offsetWidth; // trigger reflow
+                    void bell.offsetWidth; 
                     bell.classList.add("ring-anim");
                     playNotificationSound();
-                    showToast("New Notes Added!", "success");
+                    showToast("New Study Material Added!", "info");
                 }
             }
         } catch (error) {}
@@ -655,6 +669,7 @@
             }
             
             let customClass = !s.isDefault ? (s.contentType === 'video' ? 'custom-video' : s.contentType === 'test' ? 'custom-test' : s.contentType === 'link' ? 'custom-link' : s.contentType === 'book' ? 'custom-book' : 'custom-section') : '';
+            if(s.isLocked) customClass += " is-locked";
             
             let lockIcon = s.isLocked ? `<i class="fas fa-lock lock-badge"></i>` : '';
             
@@ -833,7 +848,7 @@
             } 
         }
         await saveData(); fullRefresh();
-        showToast("Item Deleted Successfully", "info");
+        showToast("Item Deleted", "info");
         if (isPageActive === "subject") openSubject(currentOpenSubject, true);
         else if (isPageActive === "subSubject") openSubSubject(currentOpenSubject, currentOpenSubSubject, true);
     }
@@ -986,8 +1001,11 @@
             if(DEFAULT_SECTIONS.includes(section)) appData[section] = data; else appData.customSections[section].data = data;
         }
         
-        // Add to Notifications
-        addNotification(section, name);
+        // 🛑 🆕 NOTIFICATION FIX: सिर्फ तभी नोटिफिकेश भेजें जब फोल्डर लॉक न हो!
+        const secDataCheck = getSectionData(section);
+        if(!secDataCheck.isLocked) {
+            addNotification(section, name);
+        }
 
         await saveData(); fullRefresh(); showToast("Saved Successfully!", "success");
         document.getElementById("adminChapterName").value = ""; document.getElementById("adminPdfUrl").value = ""; document.getElementById("gkSubSubjectName").value = "";
@@ -1057,7 +1075,6 @@
     window.addEventListener("hashchange", () => {
         let hash = window.location.hash;
         
-        // Hide all modals first
         document.getElementById("subjectPage").classList.remove("active");
         document.getElementById("subSubjectPage").classList.remove("active");
         document.getElementById("loginModal").classList.remove("active");
@@ -1067,7 +1084,7 @@
         
         if(hash === "") {
             isPageActive = "home";
-            unlockedSession = {}; // Auto-lock everything when going home
+            unlockedSession = {}; 
         } else if(hash === "#subject") {
             document.getElementById("subjectPage").classList.add("active");
             isPageActive = "subject";
