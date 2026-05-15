@@ -61,15 +61,17 @@
         .app-icon-box[data-section="GKGS"] { background: linear-gradient(135deg, #b85c00, #f39c12); }
         .app-icon-box[data-section="Reasoning"] { background: linear-gradient(135deg, #6a1b9a, #9c27b0); }
         .app-icon-box[data-section="CurrentAffairs"] { background: linear-gradient(135deg, #b71c1c, #f44336); }
+        
         .subject-card.custom-section .app-icon-box { background: linear-gradient(135deg, #c2185b, #ff5722); }
         .subject-card.custom-video .app-icon-box { background: linear-gradient(135deg, #00c6ff, #0072ff); }
         .subject-card.custom-test .app-icon-box { background: linear-gradient(135deg, #10b981, #047857); }
         .subject-card.custom-link .app-icon-box { background: linear-gradient(135deg, #6366f1, #4338ca); }
+        .subject-card.custom-book .app-icon-box { background: linear-gradient(135deg, #3b82f6, #1d4ed8); } /* 🆕 नई किताब की थीम (Blue) */
 
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
 
-        /* ========= COMPACT MASTER LIST (SMOOTH FADE ANIMATION) ========= */
+        /* ========= COMPACT MASTER LIST (LUP-JUP ANIMATION) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
@@ -77,11 +79,23 @@
             display: flex; flex-direction: column; gap: 0.8rem; 
             max-height: 380px; overflow-y: auto; scroll-behavior: smooth;
             padding-right: 5px; 
-            transition: opacity 0.8s ease-in-out; /* एकदम स्मूथ और धीमा फेड इफ़ेक्ट */
         }
         .compact-list::-webkit-scrollbar { width: 6px; }
         .compact-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         
+        /* 🆕 लुप-जुप की फ्रेम (Keyframes) */
+        @keyframes lupJupPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; } /* हल्की सी फेड होगी */
+        }
+        
+        /* जब लिस्ट paused हो तो एनीमेशन रुक जायेगा और ओपेसिटी फुल हो जाएगी */
+        .compact-list.paused .compact-chapter-item {
+            animation-play-state: paused !important;
+            opacity: 1 !important;
+            transition: opacity 0.3s;
+        }
+
         .compact-chapter-item { 
             background: #0f172a; padding: 0.8rem 1rem; display: flex; 
             justify-content: space-between; align-items: center; 
@@ -190,7 +204,7 @@
                         <option value="video">वीडियो (Video/Lectures)</option>
                         <option value="test">ऑनलाइन टेस्ट (Mock/Quizzes)</option>
                         <option value="link">अन्य लिंक (Web Links)</option>
-                    </select>
+                        <option value="book">किताब (Book/E-Book)</option> </select>
                 </div>
                 <div class="form-group">
                     <select id="newSectionType">
@@ -199,9 +213,9 @@
                     </select>
                 </div>
                 <div class="form-group" style="width: 100%;">
-                    <input type="text" id="newSectionIcon" placeholder="आइकॉन क्लास (उदा: fas fa-star) या इमेज URL पेस्ट करें">
+                    <input type="text" id="newSectionIcon" placeholder="आइकॉन का नाम (उदा: fas fa-book) या इमेज लिंक">
                     <small style="color:#94a3b8; font-size:13px; display:block; margin-top:4px;">
-                        👉 आइकॉन चुनने के लिए <a href="https://fontawesome.com/icons?m=free" target="_blank" style="color:#10b981; text-decoration:none; font-weight:bold;">यहाँ क्लिक करें</a> और क्लास कॉपी करें, या किसी फोटो का डायरेक्ट लिंक पेस्ट करें।
+                        👉 आइकॉन क्लास (<a href="https://fontawesome.com/icons?m=free" target="_blank" style="color:#10b981;">यहाँ से लें</a>) या फोटो का डायरेक्ट (.png/.jpg) लिंक डालें।
                     </small>
                 </div>
                 <button class="btn-primary" id="createSectionBtn"><i class="fas fa-plus-circle"></i> बनाएं</button>
@@ -235,59 +249,30 @@
         "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स",
         "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान",
         "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास",
-        "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक"
+        "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक",
+        "book": "किताब"
     };
 
-    // 🚀 NEW SHUFFLE LOGIC (बहुत स्मूथ फेड इफ़ेक्ट के साथ)
+    // 🚀 NEW LUP-JUP LOGIC
     const compactListEl = document.getElementById("masterCompactList");
-    let shuffleInterval;
     let idleTimeout;
-    let isListPaused = false;
 
-    function triggerShuffle() {
-        if(isListPaused || document.getElementById("globalSearchInput").value.trim() !== "") return;
-        
-        if(compactListEl.children.length > 1) {
-            // हल्का-हल्का गायब होना (Fade out)
-            compactListEl.style.opacity = "0";
-            
-            // 800ms बाद जब पूरा गायब हो जाए, तब लिस्ट शफल करो
-            setTimeout(() => {
-                let items = Array.from(compactListEl.children);
-                for (let i = items.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [items[i], items[j]] = [items[j], items[i]];
-                }
-                
-                compactListEl.innerHTML = "";
-                items.forEach(item => compactListEl.appendChild(item));
-                
-                // हल्का-हल्का वापस आना (Fade in)
-                compactListEl.style.opacity = "1";
-            }, 800); 
-        }
-    }
-
-    function startShuffleTimer() {
-        clearInterval(shuffleInterval);
-        shuffleInterval = setInterval(triggerShuffle, 6000); // 🕒 हर 6 सेकंड में शफल
-    }
-
-    function pauseShuffleTemporarily() {
-        isListPaused = true;
+    // अगर यूज़र कुछ करता है, तो लुप-जुप रुक जाएगा और 5 सेकंड बाद फिर चालू होगा
+    function pauseLupJupTemporarily() {
+        compactListEl.classList.add("paused");
         clearTimeout(idleTimeout);
         idleTimeout = setTimeout(() => {
-            isListPaused = false; 
+            // अगर सर्च बार में कुछ नहीं लिखा है, तभी वापस चालू करें
+            if(document.getElementById("globalSearchInput").value.trim() === "") {
+                compactListEl.classList.remove("paused");
+            }
         }, 5000); 
     }
 
-    compactListEl.addEventListener("touchstart", pauseShuffleTemporarily);
-    compactListEl.addEventListener("mousemove", pauseShuffleTemporarily); 
-    compactListEl.addEventListener("click", pauseShuffleTemporarily);
-    compactListEl.addEventListener("scroll", pauseShuffleTemporarily);
-    
-    startShuffleTimer();
-
+    compactListEl.addEventListener("touchstart", pauseLupJupTemporarily);
+    compactListEl.addEventListener("mousemove", pauseLupJupTemporarily); 
+    compactListEl.addEventListener("click", pauseLupJupTemporarily);
+    compactListEl.addEventListener("scroll", pauseLupJupTemporarily);
 
     async function loadData() {
         try {
@@ -348,7 +333,7 @@
             sections.push({ 
                 key: k, isDefault: false, type: appData.customSections[k].type, 
                 contentType: appData.customSections[k].contentType || "pdf",
-                customIcon: appData.customSections[k].customIcon || "" // 🆕 कस्टम आइकॉन 
+                customIcon: appData.customSections[k].customIcon || "" 
             });
         }
         return sections;
@@ -383,20 +368,18 @@
             else if(s.contentType === "video") iconClass = "fas fa-play"; 
             else if(s.contentType === "test") iconClass = "fas fa-laptop-code"; 
             else if(s.contentType === "link") iconClass = "fas fa-link"; 
+            else if(s.contentType === "book") iconClass = "fas fa-book"; // 🆕 Book Icon
             
-            // 🆕 कस्टम आइकॉन दिखाने का लॉजिक
             let iconHtml = `<i class="${iconClass}"></i>`;
             if(!s.isDefault && s.customIcon && s.customIcon.trim() !== "") {
                 if(s.customIcon.startsWith("http")) {
-                    // अगर इमेज लिंक है तो इमेज दिखाओ
-                    iconHtml = `<img src="${escapeHtml(s.customIcon)}" style="width: 55px; height: 55px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">`;
+                    iconHtml = `<img src="${escapeHtml(s.customIcon)}" style="width: 55px; height: 55px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));" onerror="this.outerHTML='<i class=\\'fas fa-image\\' style=\\'font-size: 2.5rem;\\'></i>'">`;
                 } else {
-                    // अगर FontAwesome क्लास है तो आइकॉन दिखाओ
                     iconHtml = `<i class="${escapeHtml(s.customIcon)}"></i>`;
                 }
             }
             
-            let customClass = !s.isDefault ? (s.contentType === 'video' ? 'custom-video' : s.contentType === 'test' ? 'custom-test' : s.contentType === 'link' ? 'custom-link' : 'custom-section') : '';
+            let customClass = !s.isDefault ? (s.contentType === 'video' ? 'custom-video' : s.contentType === 'test' ? 'custom-test' : s.contentType === 'link' ? 'custom-link' : s.contentType === 'book' ? 'custom-book' : 'custom-section') : '';
             
             html += `<div class="subject-card ${customClass}" data-section="${s.key}"><div class="app-icon-box" data-section="${s.key}">${iconHtml}<div class="chapter-count-badge">${count}</div></div><div class="subject-name">${s.key}</div></div>`;
         });
@@ -408,6 +391,7 @@
         if(contentType === 'video') return `<i class="fas fa-play-circle" style="color:#ff4757;"></i>`;
         if(contentType === 'test') return `<i class="fas fa-check-circle" style="color:#10b981;"></i>`;
         if(contentType === 'link') return `<i class="fas fa-external-link-square-alt" style="color:#6366f1;"></i>`;
+        if(contentType === 'book') return `<i class="fas fa-book" style="color:#3b82f6;"></i>`; // 🆕 Book Icon Link
         return `<i class="fas fa-file-pdf" style="color:#ff6b81;"></i>`;
     }
 
@@ -485,8 +469,12 @@
         document.getElementById("subjectPage").classList.remove("active");
     }
 
-    // 🔍 SEARCH FUNCTIONALITY
     document.getElementById("globalSearchInput").addEventListener("input", function(e) {
+        if(e.target.value.trim() !== "") {
+            compactListEl.classList.add("paused"); // सर्च करते समय एनीमेशन रोक दो
+        } else {
+            compactListEl.classList.remove("paused");
+        }
         renderCompactMasterList(e.target.value);
     });
 
@@ -523,7 +511,12 @@
         let h = "";
         filteredItems.forEach(ch => {
             const del = isAdminLoggedIn ? `<button class="delete-compact-btn show-delete" data-id="${ch.id}" data-seckey="${ch.sKey}" data-subname="${ch.subName || ''}"> हटाएँ</button>` : '';
-            h += `<div class="compact-chapter-item">
+            
+            // 🆕 लुप-जुप के लिए रैंडम टाइमर (ताकि सब एक साथ लुप-जुप न करें)
+            let randomDuration = (2.5 + Math.random() * 2.5).toFixed(2); // 2.5s to 5s
+            let randomDelay = (Math.random() * 2).toFixed(2); // 0s to 2s delay
+            
+            h += `<div class="compact-chapter-item" style="animation: lupJupPulse ${randomDuration}s ease-in-out ${randomDelay}s infinite;">
                     <div class="compact-item-text">
                         <span class="compact-badge">${escapeHtml(ch.label)}</span> 
                         <strong>${escapeHtml(ch.name)}</strong>
@@ -589,7 +582,7 @@
         
         let type = document.getElementById("newSectionType").value;
         let cType = document.getElementById("newSectionContentType").value; 
-        let cIcon = document.getElementById("newSectionIcon").value.trim(); // 🆕 कस्टम आइकॉन उठाओ
+        let cIcon = document.getElementById("newSectionIcon").value.trim(); 
         
         if(type === "normal") appData.customSections[name] = { type: "normal", contentType: cType, customIcon: cIcon, data: [] };
         else appData.customSections[name] = { type: "nested", contentType: cType, customIcon: cIcon, data: {} };
