@@ -54,7 +54,9 @@
         @media (max-width: 450px) { .subjects-grid { grid-template-columns: repeat(3, 1fr); gap: 1.2rem; } }
         .subject-card { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s ease; width: 100%; }
         .subject-card:hover { transform: translateY(-5px); }
-        .app-icon-box { width: 90px; height: 90px; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 2.8rem; color: white; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+        
+        /* 🔴 यहाँ से overflow: hidden; हटा दिया गया है ताकि लाल बैज न कटे 🔴 */
+        .app-icon-box { width: 90px; height: 90px; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 2.8rem; color: white; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3); position: relative; }
 
         .app-icon-box[data-section="Hindi"] { background: linear-gradient(135deg, #1e3c72, #2a5298); }
         .app-icon-box[data-section="Math"] { background: linear-gradient(135deg, #0f5c3f, #1e8f5e); }
@@ -66,7 +68,7 @@
         .subject-card.custom-video .app-icon-box { background: linear-gradient(135deg, #00c6ff, #0072ff); }
         .subject-card.custom-test .app-icon-box { background: linear-gradient(135deg, #10b981, #047857); }
         .subject-card.custom-link .app-icon-box { background: linear-gradient(135deg, #6366f1, #4338ca); }
-        .subject-card.custom-book .app-icon-box { background: linear-gradient(135deg, #3b82f6, #1d4ed8); } /* 🆕 नई किताब की थीम (Blue) */
+        .subject-card.custom-book .app-icon-box { background: linear-gradient(135deg, #3b82f6, #1d4ed8); } 
 
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
@@ -83,13 +85,11 @@
         .compact-list::-webkit-scrollbar { width: 6px; }
         .compact-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
         
-        /* 🆕 लुप-जुप की फ्रेम (Keyframes) */
         @keyframes lupJupPulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.35; } /* हल्की सी फेड होगी */
+            50% { opacity: 0.35; } 
         }
         
-        /* जब लिस्ट paused हो तो एनीमेशन रुक जायेगा और ओपेसिटी फुल हो जाएगी */
         .compact-list.paused .compact-chapter-item {
             animation-play-state: paused !important;
             opacity: 1 !important;
@@ -204,7 +204,8 @@
                         <option value="video">वीडियो (Video/Lectures)</option>
                         <option value="test">ऑनलाइन टेस्ट (Mock/Quizzes)</option>
                         <option value="link">अन्य लिंक (Web Links)</option>
-                        <option value="book">किताब (Book/E-Book)</option> </select>
+                        <option value="book">किताब (Book/E-Book)</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <select id="newSectionType">
@@ -253,16 +254,13 @@
         "book": "किताब"
     };
 
-    // 🚀 NEW LUP-JUP LOGIC
     const compactListEl = document.getElementById("masterCompactList");
     let idleTimeout;
 
-    // अगर यूज़र कुछ करता है, तो लुप-जुप रुक जाएगा और 5 सेकंड बाद फिर चालू होगा
     function pauseLupJupTemporarily() {
         compactListEl.classList.add("paused");
         clearTimeout(idleTimeout);
         idleTimeout = setTimeout(() => {
-            // अगर सर्च बार में कुछ नहीं लिखा है, तभी वापस चालू करें
             if(document.getElementById("globalSearchInput").value.trim() === "") {
                 compactListEl.classList.remove("paused");
             }
@@ -368,7 +366,7 @@
             else if(s.contentType === "video") iconClass = "fas fa-play"; 
             else if(s.contentType === "test") iconClass = "fas fa-laptop-code"; 
             else if(s.contentType === "link") iconClass = "fas fa-link"; 
-            else if(s.contentType === "book") iconClass = "fas fa-book"; // 🆕 Book Icon
+            else if(s.contentType === "book") iconClass = "fas fa-book"; 
             
             let iconHtml = `<i class="${iconClass}"></i>`;
             if(!s.isDefault && s.customIcon && s.customIcon.trim() !== "") {
@@ -391,7 +389,7 @@
         if(contentType === 'video') return `<i class="fas fa-play-circle" style="color:#ff4757;"></i>`;
         if(contentType === 'test') return `<i class="fas fa-check-circle" style="color:#10b981;"></i>`;
         if(contentType === 'link') return `<i class="fas fa-external-link-square-alt" style="color:#6366f1;"></i>`;
-        if(contentType === 'book') return `<i class="fas fa-book" style="color:#3b82f6;"></i>`; // 🆕 Book Icon Link
+        if(contentType === 'book') return `<i class="fas fa-book" style="color:#3b82f6;"></i>`; 
         return `<i class="fas fa-file-pdf" style="color:#ff6b81;"></i>`;
     }
 
@@ -471,7 +469,7 @@
 
     document.getElementById("globalSearchInput").addEventListener("input", function(e) {
         if(e.target.value.trim() !== "") {
-            compactListEl.classList.add("paused"); // सर्च करते समय एनीमेशन रोक दो
+            compactListEl.classList.add("paused");
         } else {
             compactListEl.classList.remove("paused");
         }
@@ -512,9 +510,8 @@
         filteredItems.forEach(ch => {
             const del = isAdminLoggedIn ? `<button class="delete-compact-btn show-delete" data-id="${ch.id}" data-seckey="${ch.sKey}" data-subname="${ch.subName || ''}"> हटाएँ</button>` : '';
             
-            // 🆕 लुप-जुप के लिए रैंडम टाइमर (ताकि सब एक साथ लुप-जुप न करें)
-            let randomDuration = (2.5 + Math.random() * 2.5).toFixed(2); // 2.5s to 5s
-            let randomDelay = (Math.random() * 2).toFixed(2); // 0s to 2s delay
+            let randomDuration = (2.5 + Math.random() * 2.5).toFixed(2); 
+            let randomDelay = (Math.random() * 2).toFixed(2); 
             
             h += `<div class="compact-chapter-item" style="animation: lupJupPulse ${randomDuration}s ease-in-out ${randomDelay}s infinite;">
                     <div class="compact-item-text">
