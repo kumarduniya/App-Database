@@ -93,7 +93,7 @@
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
         .lock-badge { position: absolute; bottom: -6px; left: -6px; background: #1e293b; padding: 4px; font-size: 0.8rem; border-radius: 50%; color: #ffd966; border: 2px solid #fff3e0;}
 
-        /* ========= COMPACT MASTER LIST ========= */
+        /* ========= COMPACT MASTER LIST (SLIM & INLINE FIX) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
@@ -112,8 +112,9 @@
             flex-shrink: 0; margin-bottom: 10px; width: 100%;
         }
         
-        .compact-item-text { display: block; flex: 1; min-width: 0; line-height: 1.4; }
-        .compact-badge { background: #ffedd5; padding: 3px 8px; font-weight: 700; color: #b45309; font-size: 0.75rem; border-radius: 4px; display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px;}
+        /* 🔴 100% INLINE LAYOUT 🔴 */
+        .compact-item-text { display: block; flex: 1; min-width: 0; line-height: 1.5; }
+        .compact-badge { background: #ffedd5; padding: 3px 8px; font-weight: 700; color: #b45309; font-size: 0.75rem; border-radius: 4px; display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 2px;}
         .compact-item-text strong { color: white; font-size: 0.95rem; display: inline; vertical-align: middle; word-break: break-word; }
         
         .compact-item-actions { display: flex; flex-wrap: wrap; gap: 6px; flex-shrink: 0; justify-content: flex-end; align-items: center; }
@@ -132,8 +133,8 @@
         .subject-title-lg { font-size: 1.8rem; color: #ffb347; font-weight: 800; display:flex; align-items:center; gap:10px; flex-wrap: wrap;}
         
         .chapter-link-card { background: #1e293b; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #f97316; border-radius: 4px; margin-bottom: 12px; color: white; gap: 12px; }
-        .chapter-link-text { flex: 1; min-width: 0; display: block; line-height: 1.4; }
-        .chapter-link-text span { display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px; font-size: 1.1rem; }
+        .chapter-link-text { flex: 1; min-width: 0; display: block; line-height: 1.5; }
+        .chapter-link-text span { display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 2px; font-size: 1.1rem; }
         .chapter-link-text strong { display: inline; vertical-align: middle; word-break: break-word; font-size: 0.95rem; }
         .chapter-link-actions { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         .sub-subject-card-item { background: #2d3a4b; padding: 0.8rem; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #f97316; border-radius: 4px; color: white; font-weight: bold; display: flex; justify-content: space-between;}
@@ -159,12 +160,30 @@
         .notif-item { background: #0f172a; padding: 10px; border-left: 3px solid #10b981; margin-bottom: 8px; border-radius: 4px; font-size: 0.9rem;}
         .notif-item span { font-size: 0.75rem; color: #94a3b8; display: block; margin-top: 4px;}
 
+        /* 🆕 QUICK DATE POPUP (1 SECOND) */
+        #quickDatePopup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(15, 23, 42, 0.95); padding: 20px 30px; border-radius: 12px;
+            color: #10b981; z-index: 99999; display: none; text-align: center;
+            border: 2px solid #10b981; font-weight: bold; box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            opacity: 0; transition: all 0.2s ease-in-out;
+        }
+        #quickDatePopup i { font-size: 2.2rem; margin-bottom: 8px; }
+        .quick-date-title { color: white; font-size: 0.95rem; margin-bottom: 6px; }
+        #quickDatePopupText { font-size: 1.15rem; color: #ffd966; }
+
         .site-footer { margin-top: 2rem; background: #0f172a; text-align: center; padding: 1rem; border-radius: 8px; color: #94a3b8; border-top: 2px solid #f97316; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
 <div id="toastContainer"></div>
+
+<div id="quickDatePopup">
+    <i class="fas fa-calendar-check"></i>
+    <div class="quick-date-title">Added On:</div>
+    <div id="quickDatePopupText"></div>
+</div>
 
 <div id="loadingScreen">
     <div class="loader-spinner"></div>
@@ -380,6 +399,14 @@
 
     const hinglishDict = { "hindi":"हिंदी", "math":"गणित", "reasoning":"तर्क", "current":"करंट", "affairs":"अफेयर्स", "gk":"जीके", "gs":"जीएस", "polity":"संविधान", "history":"इतिहास", "geography":"भूगोल", "science":"विज्ञान", "sarvanam":"सर्वनाम", "alankar":"अलंकार", "sandhi":"संधि", "samas":"समास", "practice":"प्रैक्टिस", "test":"टेस्ट", "video":"वीडियो", "question":"क्वेश्चन", "sir":"सर", "vivek":"विवेक", "book":"किताब", "document":"डॉक्यूमेंट", "my":"माय", "image":"इमेज", "photo":"फोटो" };
 
+    // 🎨 FORMAT TIME FOR POPUP
+    function formatTime(ts) {
+        if(!ts) return "";
+        let d = new Date(ts);
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}, ${d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'})}`;
+    }
+
     function showToast(message, type = "info") {
         let container = document.getElementById("toastContainer");
         let toast = document.createElement("div");
@@ -390,7 +417,7 @@
         setTimeout(() => { toast.classList.add("fade-out"); setTimeout(() => toast.remove(), 400); }, 3000);
     }
 
-    // 🎵 ENHANCED SOUND & VIBRATION (TING-TONG)
+    // 🎵 ENHANCED SOUND & VIBRATION
     let audioCtx = null;
     function unlockAudio() {
         if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -401,7 +428,6 @@
     function playNotificationSound() {
         try {
             if ("vibrate" in navigator) navigator.vibrate([400, 200, 400, 200, 600]); 
-            
             if(audioCtx) {
                 if(audioCtx.state === 'suspended') audioCtx.resume();
                 const osc1 = audioCtx.createOscillator();
@@ -425,7 +451,6 @@
         } catch(e) { console.log("Audio/Vibration blocked"); }
     }
 
-    // 🔔 LOCAL NOTIFICATION LOGIC
     function addNotification(section, chapterName) {
         if(!appData.notifications) appData.notifications = [];
         let timeStr = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -449,11 +474,11 @@
         cont.innerHTML = h;
     }
 
-    // 🆕 CLEAR LOCAL NOTIFICATIONS (PER DEVICE FIX)
+    // 🆕 CLEAR LOCAL NOTIFICATIONS
     function clearLocalNotifications() {
         localStorage.setItem('clearedNotifsTime', Date.now().toString());
         renderNotifications();
-        checkUnreadNotifications(); // This immediately resets the badge on this device!
+        checkUnreadNotifications(); 
         showToast("Notifications Cleared", "info");
     }
 
@@ -461,8 +486,6 @@
         renderNotifications();
         document.getElementById("notifModal").classList.add("active");
         window.location.hash = "notifications";
-        
-        // Mark as seen so badge clears when viewing
         localStorage.setItem('seenNotifsTime', Date.now().toString());
         checkUnreadNotifications(); 
         document.getElementById("bellIconBtn").classList.remove("ring-anim");
@@ -495,7 +518,6 @@
         bell.classList.add("ring-anim");
         playNotificationSound();
     }
-
 
     document.getElementById("dateSearchInput").addEventListener("change", function(e) {
         let val = e.target.value;
@@ -581,7 +603,6 @@
             showToast("Incorrect Password!", "error");
         }
     });
-
 
     async function loadData() {
         try {
@@ -779,16 +800,17 @@
             if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">No Items</div>`;
             else {
                 let h = "";
+                // 🔴 100% INLINE FIX FOR INNER FOLDER
                 chapters.forEach(ch => { 
                     let display = getItemDisplayDetails(ch.itemType, contentType);
                     
                     h += `<div class="chapter-link-card">
                         <div class="chapter-link-text">
-                            <span style="font-size:1.1rem; margin-right:5px;">${display.icon}</span> 
-                            <strong style="font-size:0.95rem;">${escapeHtml(ch.name)}</strong>
+                            <span style="display:inline-block; vertical-align:middle; margin-right:8px; font-size:1.1rem;">${display.icon}</span> 
+                            <strong style="display:inline; vertical-align:middle; font-size:0.95rem; word-break:break-word;">${escapeHtml(ch.name)}</strong>
                         </div>
                         <div class="compact-item-actions">
-                            <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
+                            <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}" data-ts="${ch.timestamp || ''}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
                             <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${secKey}', null, '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">Edit</button>
                             <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${secKey}', null)">Delete</button>
                         </div>
@@ -817,16 +839,17 @@
         if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">No Items</div>`;
         else {
             let h = "";
+            // 🔴 100% INLINE FIX FOR INNER SUB-FOLDER
             chapters.forEach(ch => { 
                 let display = getItemDisplayDetails(ch.itemType, contentType);
                 
                 h += `<div class="chapter-link-card">
                     <div class="chapter-link-text">
-                        <span style="font-size:1.1rem; margin-right:5px;">${display.icon}</span> 
-                        <strong style="font-size:0.95rem;">${escapeHtml(ch.name)}</strong>
+                        <span style="display:inline-block; vertical-align:middle; margin-right:8px; font-size:1.1rem;">${display.icon}</span> 
+                        <strong style="display:inline; vertical-align:middle; font-size:0.95rem; word-break:break-word;">${escapeHtml(ch.name)}</strong>
                     </div>
                     <div class="compact-item-actions">
-                        <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
+                        <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}" data-ts="${ch.timestamp || ''}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
                         <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${parent}', '${subName}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">Edit</button>
                         <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${parent}', '${subName}')">Delete</button>
                     </div>
@@ -886,14 +909,14 @@
         filteredItems.forEach(ch => {
             let display = getItemDisplayDetails(ch.itemType, ch.folderContentType);
             
-            // 🆕 MASTER LIST FIX: Button Text simply says "Open" (ओपन) with Icon. Date Text removed.
+            // 🔴 100% INLINE FIX FOR MASTER LIST
             h += `<div class="compact-chapter-item">
                     <div class="compact-item-text">
                         <span class="compact-badge">${display.icon} ${escapeHtml(ch.label)}</span> 
-                        <strong style="display:block; margin-top:3px;">${escapeHtml(ch.name)}</strong>
+                        <strong>${escapeHtml(ch.name)}</strong>
                     </div>
                     <div class="compact-item-actions">
-                        <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> Open</button> 
+                        <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}" data-ts="${ch.timestamp || ''}"><i class="${display.btnIcon}"></i> Open</button> 
                         <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${ch.sKey}', '${ch.subName||''}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">Edit</button>
                         <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${ch.sKey}', '${ch.subName||''}')">Delete</button>
                     </div>
@@ -906,9 +929,33 @@
         attachOpenButtons(container);
     }
 
+    // 🚀 NEW QUICK POPUP ON CLICK LOGIC
     function attachOpenButtons(container) { 
         container.querySelectorAll(".btn-open").forEach(btn => btn.addEventListener("click", (e) => { 
-            e.stopPropagation(); window.open(btn.getAttribute("data-url"), "_blank"); 
+            e.stopPropagation(); 
+            let url = btn.getAttribute("data-url");
+            let ts = btn.getAttribute("data-ts");
+            
+            if (ts && ts !== "undefined" && ts !== "") {
+                let popup = document.getElementById("quickDatePopup");
+                document.getElementById("quickDatePopupText").innerText = formatTime(parseInt(ts));
+                popup.style.display = "block";
+                setTimeout(() => { 
+                    popup.style.opacity = "1"; 
+                    popup.style.transform = "translate(-50%, -50%) scale(1)"; 
+                }, 10);
+                
+                setTimeout(() => {
+                    popup.style.opacity = "0";
+                    popup.style.transform = "translate(-50%, -50%) scale(0.8)";
+                    setTimeout(() => { 
+                        popup.style.display = "none"; 
+                        window.open(url, "_blank"); 
+                    }, 200);
+                }, 800);
+            } else {
+                window.open(url, "_blank"); 
+            }
         })); 
     }
 
@@ -1172,7 +1219,7 @@
             document.getElementById("dateSearchInput").value = "";
             document.getElementById("clearDateBtn").style.display = "none";
             renderCompactMasterList(document.getElementById("globalSearchInput").value, "");
-            checkUnreadNotifications(); // Refresh badge when coming home
+            checkUnreadNotifications(); 
         } else if(hash === "#subject") {
             document.getElementById("subjectPage").classList.add("active");
             isPageActive = "subject";
@@ -1187,6 +1234,7 @@
             document.getElementById("adminUnlockModal").classList.add("active");
         } else if(hash === "#notifications") {
             document.getElementById("notifModal").classList.add("active");
+            checkUnreadNotifications();
         }
     });
 
