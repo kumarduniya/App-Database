@@ -55,15 +55,20 @@
             .header-actions { width: 100%; justify-content: center; }
         }
 
-        /* ========= SEARCH BAR ========= */
+        /* ========= SEARCH BAR & CALENDAR ========= */
         .search-bar-container {
-            background: #1e293b; padding: 12px 20px; border-radius: 8px; margin-bottom: 2.5rem;
-            display: flex; align-items: center; gap: 12px; border-left: 6px solid #10b981;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            background: #1e293b; padding: 12px 15px; border-radius: 8px; margin-bottom: 2.5rem;
+            display: flex; align-items: center; gap: 10px; border-left: 6px solid #10b981;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1); flex-wrap: wrap;
         }
-        .search-bar-container i { color: #10b981; font-size: 1.2rem; }
-        .search-bar-container input { background: transparent; border: none; color: white; width: 100%; font-size: 1.05rem; outline: none; font-weight: 500; }
+        .search-bar-container i.fa-search { color: #10b981; font-size: 1.2rem; }
+        .search-bar-container input[type="text"] { background: transparent; border: none; color: white; flex: 1; min-width: 150px; font-size: 1.05rem; outline: none; font-weight: 500; }
         .search-bar-container input::placeholder { color: #94a3b8; }
+        
+        .date-filter-box { display: flex; align-items: center; gap: 8px; background: #334155; padding: 5px 10px; border-radius: 6px; }
+        .date-filter-box input[type="date"] { background: transparent; border: none; color: #10b981; font-weight: bold; outline: none; cursor: pointer; font-family: 'Inter'; font-size: 0.85rem;}
+        /* Hide calendar icon on webkit to make it cleaner */
+        .date-filter-box input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(1) sepia(1) saturate(5) hue-rotate(100deg); }
 
         /* ========= APP STYLE GRID ========= */
         .subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 1.8rem; margin-bottom: 3rem; justify-items: center; align-items: start; }
@@ -108,7 +113,7 @@
             flex-shrink: 0; margin-bottom: 10px; width: 100%;
         }
         
-        .compact-item-text { display: block; flex: 1; min-width: 0; line-height: 1.6; }
+        .compact-item-text { display: block; flex: 1; min-width: 0; line-height: 1.4; }
         .compact-badge { background: #ffedd5; padding: 3px 8px; font-weight: 700; color: #b45309; font-size: 0.75rem; border-radius: 4px; display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px;}
         .compact-item-text strong { color: white; font-size: 0.95rem; display: inline; vertical-align: middle; word-break: break-word; }
         
@@ -128,7 +133,7 @@
         .subject-title-lg { font-size: 1.8rem; color: #ffb347; font-weight: 800; display:flex; align-items:center; gap:10px; flex-wrap: wrap;}
         
         .chapter-link-card { background: #1e293b; padding: 0.8rem 1rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #f97316; border-radius: 4px; margin-bottom: 12px; color: white; gap: 12px; }
-        .chapter-link-text { flex: 1; min-width: 0; display: block; line-height: 1.6; }
+        .chapter-link-text { flex: 1; min-width: 0; display: block; line-height: 1.4; }
         .chapter-link-text span { display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px; font-size: 1.1rem; }
         .chapter-link-text strong { display: inline; vertical-align: middle; word-break: break-word; font-size: 0.95rem; }
         .chapter-link-actions { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -184,7 +189,13 @@
     
     <div class="search-bar-container">
         <i class="fas fa-search"></i>
-        <input type="text" id="globalSearchInput" placeholder="Search (ex: alankar, image, math, pdf)...">
+        <input type="text" id="globalSearchInput" placeholder="Search (ex: alankar, math, pdf)...">
+        
+        <div class="date-filter-box">
+            <i class="fas fa-calendar-alt" style="color: #10b981;"></i>
+            <input type="date" id="dateSearchInput" title="तारीख के हिसाब से खोजें">
+            <i class="fas fa-times-circle" id="clearDateBtn" style="color:#ef4444; font-size:1.1rem; cursor:pointer; display:none; margin-left:4px;" title="कैलेंडर रीसेट करें"></i>
+        </div>
     </div>
     
     <div class="subjects-grid" id="subjectsGrid"></div>
@@ -333,12 +344,16 @@
 </div>
 
 <div id="notifModal" class="modal notif-modal">
-    <div class="login-box">
+    <div class="login-box" style="position: relative;">
         <h3 style="color: white; margin-bottom: 5px;"><i class="fas fa-bell" style="color:#10b981;"></i> Recent Updates</h3>
         <div class="notif-list" id="notifListContainer">
             <div style="color:#94a3b8; text-align:center; padding: 20px;">No new updates</div>
         </div>
-        <button class="btn-primary" onclick="closeNotifications()" style="width: 100%; background: #475569; margin-top:15px;">Close</button>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button class="btn-primary" onclick="closeNotifications()" style="width: 50%; background: #475569;">Close</button>
+            <button class="btn-primary" onclick="clearLocalNotifications()" style="width: 50%; background: #ef4444;"><i class="fas fa-trash-alt"></i> Clear All</button>
+        </div>
     </div>
 </div>
 
@@ -364,33 +379,28 @@
     let editItemDetails = {};
     let unreadNotifCount = 0;
 
-    const hinglishDict = {
-        "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स", "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान", "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास", "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक", "book": "किताब", "document": "डॉक्यूमेंट", "my": "माय"
-    };
+    const hinglishDict = { "hindi":"हिंदी", "math":"गणित", "reasoning":"तर्क", "current":"करंट", "affairs":"अफेयर्स", "gk":"जीके", "gs":"जीएस", "polity":"संविधान", "history":"इतिहास", "geography":"भूगोल", "science":"विज्ञान", "sarvanam":"सर्वनाम", "alankar":"अलंकार", "sandhi":"संधि", "samas":"समास", "practice":"प्रैक्टिस", "test":"टेस्ट", "video":"वीडियो", "question":"क्वेश्चन", "sir":"सर", "vivek":"विवेक", "book":"किताब", "document":"डॉक्यूमेंट", "my":"माय", "image":"इमेज", "photo":"फोटो" };
 
-    // 🚀 BEAUTIFUL TOAST NOTIFICATION SYSTEM
+    function formatTime(ts) {
+        if(!ts) return "";
+        let d = new Date(ts);
+        return `${d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'})}, ${d.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'})}`;
+    }
+
     function showToast(message, type = "info") {
         let container = document.getElementById("toastContainer");
         let toast = document.createElement("div");
         toast.className = `toast ${type}`;
-        
         let icon = type === "success" ? "fa-check-circle" : type === "error" ? "fa-times-circle" : "fa-info-circle";
         toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-        
         container.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.classList.add("fade-out");
-            setTimeout(() => toast.remove(), 400);
-        }, 3000);
+        setTimeout(() => { toast.classList.add("fade-out"); setTimeout(() => toast.remove(), 400); }, 3000);
     }
 
-    // 🎵 SOUND & VIBRATION (Web Audio API - Requires 1 user interaction)
+    // 🎵 ENHANCED SOUND & VIBRATION (TING-TONG)
     let audioCtx = null;
     function unlockAudio() {
-        if(!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
+        if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if(audioCtx.state === 'suspended') audioCtx.resume();
     }
     document.addEventListener('click', unlockAudio, {once:true});
@@ -398,60 +408,96 @@
 
     function playNotificationSound() {
         try {
-            // Hardware Vibration
-            if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+            // 📳 Longer Phone Vibration
+            if ("vibrate" in navigator) navigator.vibrate([400, 200, 400, 200, 600]); 
             
-            // Beep Sound
+            // 🎶 Double Beep Ting-Tong Sound
             if(audioCtx) {
                 if(audioCtx.state === 'suspended') audioCtx.resume();
-                const osc = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High pitch A5
-                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-                osc.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.5);
+                
+                // First Note (Ting)
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(880, audioCtx.currentTime); 
+                gain1.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.8);
+                osc1.connect(gain1); gain1.connect(audioCtx.destination);
+                osc1.start(); osc1.stop(audioCtx.currentTime + 0.8);
+
+                // Second Note (Tong)
+                setTimeout(() => {
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(1046.5, audioCtx.currentTime); 
+                    gain2.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
+                    osc2.connect(gain2); gain2.connect(audioCtx.destination);
+                    osc2.start(); osc2.stop(audioCtx.currentTime + 1.2);
+                }, 300);
             }
-        } catch(e) { console.log("Audio/Vibration blocked by browser."); }
+        } catch(e) { console.log("Audio/Vibration blocked"); }
     }
 
-    // 🔔 NOTIFICATION LOGIC
+    // 🔔 LOCAL NOTIFICATION LOGIC
     function addNotification(section, chapterName) {
         if(!appData.notifications) appData.notifications = [];
         let timeStr = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-        appData.notifications.unshift({ text: `${section} - ${chapterName}`, time: timeStr });
-        if(appData.notifications.length > 15) appData.notifications.pop(); // Keep only last 15
+        // Adding Timestamp for local clear feature
+        appData.notifications.unshift({ text: `${section} - ${chapterName}`, time: timeStr, timestamp: Date.now() });
+        if(appData.notifications.length > 15) appData.notifications.pop(); 
     }
 
     function renderNotifications() {
         const cont = document.getElementById("notifListContainer");
-        if(!appData.notifications || appData.notifications.length === 0) {
+        let localClearedTime = parseInt(localStorage.getItem('clearedNotifsTime') || "0");
+        
+        let visibleNotifs = (appData.notifications || []).filter(n => (n.timestamp || 0) > localClearedTime);
+
+        if(visibleNotifs.length === 0) {
             cont.innerHTML = `<div style="color:#94a3b8; text-align:center; padding: 20px;">No new updates</div>`;
             return;
         }
         let h = "";
-        appData.notifications.forEach(n => {
+        visibleNotifs.forEach(n => {
             h += `<div class="notif-item"><i class="fas fa-check-circle" style="color:#10b981; margin-right:5px;"></i> ${escapeHtml(n.text)} <span>${n.time}</span></div>`;
         });
         cont.innerHTML = h;
+    }
+
+    // 🆕 CLEAR LOCAL NOTIFICATIONS
+    function clearLocalNotifications() {
+        localStorage.setItem('clearedNotifsTime', Date.now().toString());
+        renderNotifications();
+        showToast("Notifications Cleared", "info");
     }
 
     function openNotifications() {
         renderNotifications();
         document.getElementById("notifModal").classList.add("active");
         window.location.hash = "notifications";
-        // Reset Bell
         unreadNotifCount = 0;
         document.getElementById("notifBadgeCounter").style.display = "none";
         document.getElementById("bellIconBtn").classList.remove("ring-anim");
     }
 
-    function closeNotifications() {
-        history.back();
-    }
+    function closeNotifications() { history.back(); }
+
+    // 📅 CALENDAR FILTER EVENT
+    document.getElementById("dateSearchInput").addEventListener("change", function(e) {
+        let val = e.target.value;
+        if(val) document.getElementById("clearDateBtn").style.display = "inline-block";
+        else document.getElementById("clearDateBtn").style.display = "none";
+        renderCompactMasterList(document.getElementById("globalSearchInput").value, val);
+    });
+
+    document.getElementById("clearDateBtn").addEventListener("click", function() {
+        document.getElementById("dateSearchInput").value = "";
+        this.style.display = "none";
+        renderCompactMasterList(document.getElementById("globalSearchInput").value, "");
+    });
+
 
     // 🚀 SCROLL TICKER
     const compactListEl = document.getElementById("masterCompactList");
@@ -462,7 +508,7 @@
     function startSmoothAutoScroll() {
         clearInterval(autoScrollTimer);
         autoScrollTimer = setInterval(() => {
-            if(!isUserScrolling && document.getElementById("globalSearchInput").value.trim() === "") {
+            if(!isUserScrolling && document.getElementById("globalSearchInput").value.trim() === "" && document.getElementById("dateSearchInput").value === "") {
                 compactListEl.scrollTop += 1;
                 if(Math.ceil(compactListEl.scrollTop + compactListEl.clientHeight) >= compactListEl.scrollHeight / 2) {
                     compactListEl.scrollTop = 0;
@@ -544,14 +590,17 @@
             const response = await fetch(SCRIPT_URL);
             const storedData = await response.json();
             
-            // Check for new notifications to ring bell
-            let oldNotifCount = appData.notifications ? appData.notifications.length : 0;
-            let newNotifCount = storedData.notifications ? storedData.notifications.length : 0;
             let isNewUpdate = false;
-            
             if(storedData.notifications && appData.notifications) {
-                if(newNotifCount > 0 && (oldNotifCount === 0 || storedData.notifications[0].text !== appData.notifications[0].text)) {
-                    isNewUpdate = true;
+                let latestStored = storedData.notifications[0];
+                let latestLocal = appData.notifications[0];
+                
+                // Compare timestamps to find if update is fresh
+                if(latestStored && (!latestLocal || latestStored.timestamp > latestLocal.timestamp)) {
+                    let localClearedTime = parseInt(localStorage.getItem('clearedNotifsTime') || "0");
+                    if (latestStored.timestamp > localClearedTime) {
+                        isNewUpdate = true;
+                    }
                 }
             }
 
@@ -565,7 +614,6 @@
                 if (isPageActive === "subject" && currentOpenSubject) openSubject(currentOpenSubject, true);
                 else if (isPageActive === "subSubject" && currentOpenSubject && currentOpenSubSubject) openSubSubject(currentOpenSubject, currentOpenSubSubject, true);
                 
-                // Ring Bell
                 if(isNewUpdate && !isAdminLoggedIn) {
                     unreadNotifCount++;
                     let badge = document.getElementById("notifBadgeCounter");
@@ -576,7 +624,7 @@
                     void bell.offsetWidth; 
                     bell.classList.add("ring-anim");
                     playNotificationSound();
-                    showToast("New Study Material Added!", "info");
+                    showToast("New Study Material Added!", "success");
                 }
             }
         } catch (error) {}
@@ -687,6 +735,8 @@
             document.getElementById("passwordModalSubject").innerText = `"${secKey}" is a Secure Folder`;
             document.getElementById("folderPasswordInput").value = "";
             document.getElementById("folderPasswordInput").type = "password";
+            document.getElementById("togglePasswordEye").classList.remove("fa-eye-slash");
+            document.getElementById("togglePasswordEye").classList.add("fa-eye");
             
             window.location.hash = "password";
             document.getElementById("passwordModal").classList.add("active");
@@ -721,8 +771,10 @@
                 let h = "";
                 chapters.forEach(ch => { 
                     let display = getItemDisplayDetails(ch.itemType, contentType);
+                    let timeBadge = ch.timestamp ? `<small style="display:block; color:#94a3b8; font-size:0.7rem; margin-top:3px;"><i class="fas fa-clock"></i> ${formatTime(ch.timestamp)}</small>` : '';
+                    
                     h += `<div class="chapter-link-card">
-                        <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong></div>
+                        <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong>${timeBadge}</div>
                         <div class="compact-item-actions">
                             <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
                             <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${secKey}', null, '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">Edit</button>
@@ -755,8 +807,10 @@
             let h = "";
             chapters.forEach(ch => { 
                 let display = getItemDisplayDetails(ch.itemType, contentType);
+                let timeBadge = ch.timestamp ? `<small style="display:block; color:#94a3b8; font-size:0.7rem; margin-top:3px;"><i class="fas fa-clock"></i> ${formatTime(ch.timestamp)}</small>` : '';
+                
                 h += `<div class="chapter-link-card">
-                    <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong></div>
+                    <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong>${timeBadge}</div>
                     <div class="compact-item-actions">
                         <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
                         <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${parent}', '${subName}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">Edit</button>
@@ -772,10 +826,10 @@
     }
 
     document.getElementById("globalSearchInput").addEventListener("input", function(e) {
-        renderCompactMasterList(e.target.value);
+        renderCompactMasterList(e.target.value, document.getElementById("dateSearchInput").value);
     });
 
-    function renderCompactMasterList(searchQuery = "") {
+    function renderCompactMasterList(searchQuery = "", dateQuery = "") {
         const container = document.getElementById("masterCompactList");
         allGlobalItems = [];
         
@@ -789,12 +843,23 @@
 
         let filteredItems = allGlobalItems;
         
+        // Date Search Logic
+        if (dateQuery) {
+            let selectedDateObj = new Date(dateQuery);
+            let selectedDateStr = selectedDateObj.toLocaleDateString('en-GB'); 
+            filteredItems = filteredItems.filter(item => {
+                if(!item.timestamp) return false;
+                return new Date(item.timestamp).toLocaleDateString('en-GB') === selectedDateStr;
+            });
+        }
+
+        // Text Search Logic
         if(searchQuery.trim() !== "") {
             let q = searchQuery.toLowerCase();
             let extendedQuery = q;
             for(let key in hinglishDict) { if(q.includes(key)) extendedQuery += " " + hinglishDict[key]; }
             let searchParts = extendedQuery.split(" ").filter(p => p.trim() !== "");
-            filteredItems = allGlobalItems.filter(item => {
+            filteredItems = filteredItems.filter(item => {
                 let targetText = (item.name + " " + item.label).toLowerCase();
                 return searchParts.some(part => targetText.includes(part));
             });
@@ -808,10 +873,13 @@
         let h = "";
         filteredItems.forEach(ch => {
             let display = getItemDisplayDetails(ch.itemType, ch.folderContentType);
+            let timeBadge = ch.timestamp ? `<small style="display:block; color:#94a3b8; font-size:0.7rem; margin-top:3px;"><i class="fas fa-calendar-alt"></i> ${formatTime(ch.timestamp)}</small>` : '';
+            
             h += `<div class="compact-chapter-item">
                     <div class="compact-item-text">
                         <span class="compact-badge">${display.icon} ${escapeHtml(ch.label)}</span> 
                         <strong>${escapeHtml(ch.name)}</strong>
+                        ${timeBadge}
                     </div>
                     <div class="compact-item-actions">
                         <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button> 
@@ -821,7 +889,7 @@
                   </div>`;
         });
         
-        if(searchQuery === "" && filteredItems.length > 3) { container.innerHTML = `<div>${h}${h}</div>`; } 
+        if(searchQuery === "" && dateQuery === "" && filteredItems.length > 3) { container.innerHTML = `<div>${h}${h}</div>`; } 
         else { container.innerHTML = `<div>${h}</div>`; }
         
         attachOpenButtons(container);
@@ -923,7 +991,6 @@
             return;
         }
 
-        // Open custom Unlock Prompt Modal
         adminUnlockTargetKey = secKey;
         document.getElementById("adminUnlockPassInput").value = "";
         document.getElementById("adminUnlockModal").classList.add("active");
@@ -974,6 +1041,7 @@
         
         const { type, data } = getSectionData(section);
         let subN = document.getElementById("gkSubSubjectName").value.trim();
+        let timestamp = Date.now(); // 🆕 Date Timestamp Logic
         
         if(editMode) {
             let list = type === "nested" ? data[subName||""] : data; 
@@ -985,6 +1053,7 @@
                     list[itemIndex].name = name;
                     list[itemIndex].url = url;
                     list[itemIndex].itemType = itemType; 
+                    // Keep old timestamp if editing
                 }
             }
             await saveData(); fullRefresh(); resetEditMode(); showToast("Updated Successfully!", "success");
@@ -994,10 +1063,10 @@
         if(type === "nested") {
             if(!subN) return showToast("Sub-Section Name Required!", "error");
             if(!data[subN]) data[subN] = [];
-            data[subN].push({ id: genId(), name, url, itemType });
+            data[subN].push({ id: genId(), name, url, itemType, timestamp });
             if(DEFAULT_SECTIONS.includes(section)) appData[section] = data; else appData.customSections[section].data = data;
         } else {
-            data.push({ id: genId(), name, url, itemType });
+            data.push({ id: genId(), name, url, itemType, timestamp });
             if(DEFAULT_SECTIONS.includes(section)) appData[section] = data; else appData.customSections[section].data = data;
         }
         
@@ -1051,7 +1120,13 @@
         document.querySelectorAll(".delete-section-btn").forEach(btn => btn.addEventListener("click", async () => { let s = btn.getAttribute("data-sec"); if(confirm(`Delete "${s}"? All data inside will be lost!`)) { delete appData.customSections[s]; await saveData(); fullRefresh(); showToast("Folder Deleted", "info");} }));
     }
     
-    function fullRefresh() { renderHomeCards(); renderCompactMasterList(document.getElementById("globalSearchInput").value); updateAdminSelect(); renderManageSections(); if(isAdminLoggedIn) document.getElementById("adminPanel").classList.add("show-admin"); else document.getElementById("adminPanel").classList.remove("show-admin"); }
+    function fullRefresh() { 
+        renderHomeCards(); 
+        renderCompactMasterList(document.getElementById("globalSearchInput").value, document.getElementById("dateSearchInput").value); 
+        updateAdminSelect(); 
+        renderManageSections(); 
+        if(isAdminLoggedIn) document.getElementById("adminPanel").classList.add("show-admin"); else document.getElementById("adminPanel").classList.remove("show-admin"); 
+    }
 
     const modal = document.getElementById("loginModal");
     function clearLoginFields() { document.getElementById("loginUserId").value = ""; document.getElementById("loginPassword").value = ""; }
@@ -1085,6 +1160,10 @@
         if(hash === "") {
             isPageActive = "home";
             unlockedSession = {}; 
+            // 📅 🆕 Calendar reset when going Home
+            document.getElementById("dateSearchInput").value = "";
+            document.getElementById("clearDateBtn").style.display = "none";
+            renderCompactMasterList(document.getElementById("globalSearchInput").value, "");
         } else if(hash === "#subject") {
             document.getElementById("subjectPage").classList.add("active");
             isPageActive = "subject";
