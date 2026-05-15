@@ -66,14 +66,13 @@
         .subject-card.custom-test .app-icon-box { background: linear-gradient(135deg, #10b981, #047857); }
         .subject-card.custom-link .app-icon-box { background: linear-gradient(135deg, #6366f1, #4338ca); }
         .subject-card.custom-book .app-icon-box { background: linear-gradient(135deg, #3b82f6, #1d4ed8); } 
-        /* 🔒 लॉक वाले फोल्डर का कलर अलग */
         .subject-card.is-locked .app-icon-box { background: linear-gradient(135deg, #475569, #0f172a); border: 2px solid #ef4444;}
 
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
         .lock-badge { position: absolute; bottom: -6px; left: -6px; background: #1e293b; padding: 4px; font-size: 0.8rem; border-radius: 50%; color: #ffd966; border: 2px solid #fff3e0;}
 
-        /* ========= COMPACT MASTER LIST (AUTO SCROLL & MANUAL SCROLL) ========= */
+        /* ========= COMPACT MASTER LIST ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
@@ -115,6 +114,7 @@
         .chapter-link-text { flex: 1; min-width: 0; display: block; line-height: 1.6; }
         .chapter-link-text span { display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px; font-size: 1.1rem; }
         .chapter-link-text strong { display: inline; vertical-align: middle; word-break: break-word; font-size: 0.95rem; }
+        .chapter-link-actions { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         .sub-subject-card-item { background: #2d3a4b; padding: 0.8rem; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #f97316; border-radius: 4px; color: white; font-weight: bold; display: flex; justify-content: space-between;}
 
         /* ========= ADMIN PANEL ========= */
@@ -156,7 +156,7 @@
     
     <div class="search-bar-container">
         <i class="fas fa-search"></i>
-        <input type="text" id="globalSearchInput" placeholder="सर्च करें (उदा: alankar, math, pdf)...">
+        <input type="text" id="globalSearchInput" placeholder="सर्च करें (उदा: alankar, image, math, pdf)...">
     </div>
     
     <div class="subjects-grid" id="subjectsGrid"></div>
@@ -174,10 +174,22 @@
         <button id="logoutAdminBtn" class="logout-btn"><i class="fas fa-sign-out-alt"></i> लॉगआउट</button>
         <h3 id="adminFormTitle"><i class="fas fa-plus-circle"></i> नया डेटा जोड़ें</h3>
         <div class="form-flex">
-            <div class="form-group"><input type="text" id="adminChapterName" placeholder="फाइल/वीडियो/टेस्ट का नाम"></div>
+            <div class="form-group"><input type="text" id="adminChapterName" placeholder="फाइल/वीडियो/इमेज का नाम"></div>
             <div class="form-group"><input type="url" id="adminPdfUrl" placeholder="लिंक (URL)"></div>
             <div class="form-group"><select id="adminSubjectSelect"></select></div>
             <div class="form-group" id="gkSubSubjectGroup" style="display:none;"><input type="text" id="gkSubSubjectName" placeholder="सब-सब्जेक्ट (Polity/History)"></div>
+            
+            <div class="form-group">
+                <select id="adminItemType">
+                    <option value="default">डिफ़ॉल्ट (फोल्डर के अनुसार)</option>
+                    <option value="pdf">पीडीएफ (PDF / Notes)</option>
+                    <option value="video">वीडियो (YouTube / Play)</option>
+                    <option value="image">इमेज (Photo / Screenshot)</option>
+                    <option value="test">ऑनलाइन टेस्ट (Quiz)</option>
+                    <option value="link">अन्य लिंक (Website)</option>
+                </select>
+            </div>
+
             <div style="width:100%; display:flex; gap:10px;">
                 <button class="btn-primary" id="addChapterAdminBtn" style="flex:1;"><i class="fas fa-plus"></i> जोड़ें</button>
                 <button class="btn-primary" id="cancelEditBtn" style="background:#475569; display:none; flex:0.4;">कैंसिल</button>
@@ -268,7 +280,6 @@
 </div>
 
 <script>
-    // URL Hash Reset
     if (window.location.hash) history.replaceState(null, null, window.location.pathname);
 
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE6NajCOnS0lZA-1ITRi72wL4eJjSetMr_zcOCsoijO4CNHWEHRq0TUg0H46oR0avBQQ/exec"; 
@@ -284,18 +295,15 @@
     let currentOpenSubSubject = "";
     let isPageActive = "home"; 
     let allGlobalItems = []; 
-    let unlockedSession = {}; // Private Folders Temporarily Unlocked
+    let unlockedSession = {}; 
     let pendingSubjectToOpen = null;
-    
-    // EDIT MODE VARIABLES
     let editMode = false;
     let editItemDetails = {};
 
     const hinglishDict = {
-        "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स", "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान", "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास", "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक", "book": "किताब", "document": "डॉक्यूमेंट", "my": "माय"
+        "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स", "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान", "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास", "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक", "book": "किताब", "document": "डॉक्यूमेंट", "my": "माय", "image": "इमेज", "photo": "फोटो"
     };
 
-    // 🚀 NEW: MANUAL SCROLL + CHAIN TICKER LOGIC (स्मूथ स्क्रॉलिंग)
     const compactListEl = document.getElementById("masterCompactList");
     let autoScrollTimer;
     let isUserScrolling = false;
@@ -320,22 +328,18 @@
 
     function handleUserInteractionEnd() {
         clearTimeout(resumeScrollTimeout);
-        resumeScrollTimeout = setTimeout(() => {
-            isUserScrolling = false;
-        }, 4000); 
+        resumeScrollTimeout = setTimeout(() => { isUserScrolling = false; }, 4000); 
     }
 
     compactListEl.addEventListener("touchstart", handleUserInteraction);
     compactListEl.addEventListener("mousedown", handleUserInteraction);
     compactListEl.addEventListener("wheel", handleUserInteraction);
-    
     compactListEl.addEventListener("touchend", handleUserInteractionEnd);
     compactListEl.addEventListener("mouseup", handleUserInteractionEnd);
     compactListEl.addEventListener("mouseleave", handleUserInteractionEnd);
 
     startSmoothAutoScroll();
 
-    // 👁️ PASSWORD EYE TOGGLE
     document.getElementById("togglePasswordEye").addEventListener("click", function() {
         let input = document.getElementById("folderPasswordInput");
         if (input.type === "password") {
@@ -349,23 +353,20 @@
         }
     });
 
-    // 🔓 PASSWORD MODAL BUTTONS (BUG FIXED)
     document.getElementById("cancelPasswordBtn").addEventListener("click", () => {
         document.getElementById("passwordModal").classList.remove("active");
         pendingSubjectToOpen = null;
-        history.back(); // Remove #password from URL
+        history.back(); 
     });
 
     document.getElementById("submitPasswordBtn").addEventListener("click", () => {
         let pass = document.getElementById("folderPasswordInput").value;
         const secData = getSectionData(pendingSubjectToOpen);
-        if(pass === secData.password) {
+        
+        if(btoa(pass) === secData.password) {
             unlockedSession[pendingSubjectToOpen] = true;
             document.getElementById("passwordModal").classList.remove("active");
-            
-            // 🛠️ BUG FIX: Race condition fixed! Replace URL instantly instead of going back.
             history.replaceState(null, null, window.location.pathname); 
-            
             openSubject(pendingSubjectToOpen);
         } else {
             alert("❌ गलत पासवर्ड! कृपया दोबारा प्रयास करें।");
@@ -447,6 +448,39 @@
         else { let c=0; for(let s in data) c+=data[s].length; return c; }
     }
 
+    // 🌟 SMART ITEM DISPLAY HELPER (Dynamic Button & Icon)
+    function getItemDisplayDetails(itemType, folderContentType) {
+        let type = (itemType && itemType !== 'default') ? itemType : folderContentType;
+        
+        let icon = '<i class="fas fa-file-pdf" style="color:#ff6b81;"></i>';
+        let btnText = 'पीडीएफ खोलें';
+        let btnIcon = 'fas fa-book-open';
+
+        if(type === 'video') { 
+            icon = '<i class="fas fa-play-circle" style="color:#ff4757;"></i>'; 
+            btnText = 'प्ले करें'; 
+            btnIcon = 'fas fa-play'; 
+        } else if(type === 'image') { 
+            icon = '<i class="fas fa-image" style="color:#a855f7;"></i>'; 
+            btnText = 'इमेज देखें'; 
+            btnIcon = 'fas fa-image'; 
+        } else if(type === 'test') { 
+            icon = '<i class="fas fa-check-circle" style="color:#10b981;"></i>'; 
+            btnText = 'टेस्ट दें'; 
+            btnIcon = 'fas fa-pencil-alt'; 
+        } else if(type === 'link') { 
+            icon = '<i class="fas fa-link" style="color:#6366f1;"></i>'; 
+            btnText = 'लिंक खोलें'; 
+            btnIcon = 'fas fa-globe'; 
+        } else if(type === 'book') { 
+            icon = '<i class="fas fa-book" style="color:#3b82f6;"></i>'; 
+            btnText = 'किताब खोलें'; 
+            btnIcon = 'fas fa-book-reader'; 
+        }
+
+        return { icon, btnText, btnIcon };
+    }
+
     function renderHomeCards() {
         const grid = document.getElementById("subjectsGrid");
         let html = "";
@@ -464,13 +498,11 @@
             else if(s.contentType === "link") iconClass = "fas fa-link"; 
             else if(s.contentType === "book") iconClass = "fas fa-book"; 
             
-            // 🖼️ FontAwesome vs Image Logic
             let iconHtml = `<i class="${iconClass}"></i>`;
             if(!s.isDefault && s.customIcon && s.customIcon.trim() !== "") {
                 if(s.customIcon.startsWith("http")) {
                     iconHtml = `<img src="${escapeHtml(s.customIcon)}" style="width: 45px; height: 45px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));" onerror="this.outerHTML='<i class=\\'fas fa-image\\' style=\\'font-size: 2.8rem;\\'></i>'">`;
                 } else {
-                    // FontAwesome class provided by user
                     iconHtml = `<i class="${escapeHtml(s.customIcon)}"></i>`;
                 }
             }
@@ -486,18 +518,9 @@
         document.querySelectorAll(".subject-card").forEach(c => c.addEventListener("click", () => openSubject(c.getAttribute("data-section"))));
     }
 
-    function getIconHTML(contentType) {
-        if(contentType === 'video') return `<i class="fas fa-play-circle" style="color:#ff4757;"></i>`;
-        if(contentType === 'test') return `<i class="fas fa-check-circle" style="color:#10b981;"></i>`;
-        if(contentType === 'link') return `<i class="fas fa-external-link-square-alt" style="color:#6366f1;"></i>`;
-        if(contentType === 'book') return `<i class="fas fa-book" style="color:#3b82f6;"></i>`; 
-        return `<i class="fas fa-file-pdf" style="color:#ff6b81;"></i>`;
-    }
-
     function openSubject(secKey, isSilentUpdate = false) {
         const secData = getSectionData(secKey);
         
-        // 🔒 Password Protection Trigger
         if(secData.isLocked && !unlockedSession[secKey] && !isSilentUpdate) {
             pendingSubjectToOpen = secKey;
             document.getElementById("passwordModalSubject").innerText = `"${secKey}" एक सुरक्षित फोल्डर है`;
@@ -515,9 +538,7 @@
         if(!isSilentUpdate) window.location.hash = "subject";
 
         const { type, contentType, data } = secData;
-        const iconHtml = getIconHTML(contentType);
         const cont = document.getElementById("subjectDetailContent");
-
         let lockBtnHtml = secData.isLocked ? `<button class="lock-close-btn" onclick="lockFolder('${secKey}')"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
         
         if(type === "nested") {
@@ -539,11 +560,12 @@
             else {
                 let h = "";
                 chapters.forEach(ch => { 
+                    let display = getItemDisplayDetails(ch.itemType, contentType);
                     h += `<div class="chapter-link-card">
-                        <div class="chapter-link-text"><span>${iconHtml}</span> <strong>${escapeHtml(ch.name)}</strong></div>
+                        <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong></div>
                         <div class="compact-item-actions">
-                            <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>
-                            <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${secKey}', null, '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}')">एडिट</button>
+                            <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
+                            <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${secKey}', null, '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">एडिट</button>
                             <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${secKey}', null)">हटाएँ</button>
                         </div>
                     </div>`; 
@@ -557,7 +579,7 @@
 
     function lockFolder(secKey) {
         delete unlockedSession[secKey];
-        history.back(); // Go Home
+        history.back(); 
         setTimeout(() => alert("🔒 फोल्डर सुरक्षित रूप से लॉक हो गया है!"), 300);
     }
 
@@ -566,7 +588,6 @@
         if(!isSilentUpdate) window.location.hash = "subsubject";
 
         const { data, contentType, isLocked } = getSectionData(parent);
-        const iconHtml = getIconHTML(contentType);
         const chapters = data[subName] || [];
         
         let lockBtnHtml = isLocked ? `<button class="lock-close-btn" onclick="lockFolder('${parent}')"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
@@ -577,11 +598,12 @@
         else {
             let h = "";
             chapters.forEach(ch => { 
+                let display = getItemDisplayDetails(ch.itemType, contentType);
                 h += `<div class="chapter-link-card">
-                    <div class="chapter-link-text"><span>${iconHtml}</span> <strong>${escapeHtml(ch.name)}</strong></div>
+                    <div class="chapter-link-text"><span>${display.icon}</span> <strong>${escapeHtml(ch.name)}</strong></div>
                     <div class="compact-item-actions">
-                        <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button>
-                        <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${parent}', '${subName}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}')">एडिट</button>
+                        <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button>
+                        <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${parent}', '${subName}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">एडिट</button>
                         <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${parent}', '${subName}')">हटाएँ</button>
                     </div>
                 </div>`; 
@@ -593,10 +615,6 @@
         document.getElementById("subjectPage").classList.remove("active");
     }
 
-    document.getElementById("globalSearchInput").addEventListener("input", function(e) {
-        renderCompactMasterList(e.target.value);
-    });
-
     function renderCompactMasterList(searchQuery = "") {
         const container = document.getElementById("masterCompactList");
         allGlobalItems = [];
@@ -605,8 +623,8 @@
             const secData = getSectionData(sec.key);
             if(secData.isLocked) return; // 🔒 प्राइवेट फोल्डर लिस्ट में नहीं दिखेगा
             
-            if(secData.type === "normal") secData.data.forEach(ch => allGlobalItems.push({ ...ch, label: sec.key, sKey: sec.key }));
-            else for(let sub in secData.data) secData.data[sub].forEach(ch => allGlobalItems.push({ ...ch, label: `${sec.key} (${sub})`, sKey: sec.key, subName: sub }));
+            if(secData.type === "normal") secData.data.forEach(ch => allGlobalItems.push({ ...ch, label: sec.key, sKey: sec.key, folderContentType: secData.contentType }));
+            else for(let sub in secData.data) secData.data[sub].forEach(ch => allGlobalItems.push({ ...ch, label: `${sec.key} (${sub})`, sKey: sec.key, subName: sub, folderContentType: secData.contentType }));
         });
 
         let filteredItems = allGlobalItems;
@@ -629,23 +647,24 @@
         
         let h = "";
         filteredItems.forEach(ch => {
+            let display = getItemDisplayDetails(ch.itemType, ch.folderContentType);
             h += `<div class="compact-chapter-item">
                     <div class="compact-item-text">
-                        <span class="compact-badge">${escapeHtml(ch.label)}</span> 
+                        <span class="compact-badge">${display.icon} ${escapeHtml(ch.label)}</span> 
                         <strong>${escapeHtml(ch.name)}</strong>
                     </div>
                     <div class="compact-item-actions">
-                        <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="fas fa-external-link-alt"></i> ओपन</button> 
-                        <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${ch.sKey}', '${ch.subName||''}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}')">एडिट</button>
+                        <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}"><i class="${display.btnIcon}"></i> ${display.btnText}</button> 
+                        <button class="action-btn btn-edit ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="startEdit('${ch.id}', '${ch.sKey}', '${ch.subName||''}', '${escapeHtml(ch.name)}', '${escapeHtml(ch.url)}', '${ch.itemType || 'default'}')">एडिट</button>
                         <button class="action-btn btn-delete ${isAdminLoggedIn ? 'show-admin' : ''}" onclick="deleteItem('${ch.id}', '${ch.sKey}', '${ch.subName||''}')">हटाएँ</button>
                     </div>
                   </div>`;
         });
         
         if(searchQuery === "" && filteredItems.length > 4) {
-            container.innerHTML = h + h; 
+            container.innerHTML = `<div class="ticker-wrapper animate" style="animation-duration: ${filteredItems.length * 3}s">${h}${h}</div>`;
         } else {
-            container.innerHTML = h;
+            container.innerHTML = `<div class="ticker-wrapper">${h}</div>`;
         }
         
         attachOpenButtons(container);
@@ -676,8 +695,7 @@
         else if (isPageActive === "subSubject") openSubSubject(currentOpenSubject, currentOpenSubSubject, true);
     }
 
-    // ✏️ EDIT FEATURE
-    function startEdit(id, section, subName, name, url) {
+    function startEdit(id, section, subName, name, url, itemType) {
         editMode = true;
         editItemDetails = { id, section, subName };
         
@@ -687,6 +705,7 @@
         
         document.getElementById("adminChapterName").value = name;
         document.getElementById("adminPdfUrl").value = url;
+        document.getElementById("adminItemType").value = itemType || "default"; // 🆕
         
         let addBtn = document.getElementById("addChapterAdminBtn");
         addBtn.innerHTML = `<i class="fas fa-save"></i> अपडेट करें`;
@@ -706,6 +725,7 @@
         document.getElementById("adminChapterName").value = "";
         document.getElementById("adminPdfUrl").value = "";
         document.getElementById("gkSubSubjectName").value = "";
+        document.getElementById("adminItemType").value = "default";
         
         let addBtn = document.getElementById("addChapterAdminBtn");
         addBtn.innerHTML = `<i class="fas fa-plus"></i> जोड़ें`;
@@ -725,6 +745,8 @@
     async function addChapter() {
         if(!isAdminLoggedIn) return alert("लॉगिन करें");
         let name = document.getElementById("adminChapterName").value.trim(), url = document.getElementById("adminPdfUrl").value.trim(), section = document.getElementById("adminSubjectSelect").value;
+        let itemType = document.getElementById("adminItemType").value; // 🆕
+
         if(!name || !url) return alert("सभी भरें");
         if(!url.startsWith("http")) url = "https://" + url;
         
@@ -740,6 +762,7 @@
                 if(itemIndex > -1) {
                     list[itemIndex].name = name;
                     list[itemIndex].url = url;
+                    list[itemIndex].itemType = itemType; // 🆕
                 }
             }
             await saveData(); fullRefresh(); resetEditMode(); alert("सफलतापूर्वक अपडेट हो गया!");
@@ -749,10 +772,10 @@
         if(type === "nested") {
             if(!subN) return alert("सब-सेक्शन नाम");
             if(!data[subN]) data[subN] = [];
-            data[subN].push({ id: genId(), name, url });
+            data[subN].push({ id: genId(), name, url, itemType });
             if(DEFAULT_SECTIONS.includes(section)) appData[section] = data; else appData.customSections[section].data = data;
         } else {
-            data.push({ id: genId(), name, url });
+            data.push({ id: genId(), name, url, itemType });
             if(DEFAULT_SECTIONS.includes(section)) appData[section] = data; else appData.customSections[section].data = data;
         }
         await saveData(); fullRefresh(); alert("लाइव सेव हो गया!");
@@ -770,14 +793,15 @@
         let cIcon = document.getElementById("newSectionIcon").value.trim(); 
         let cPass = document.getElementById("newSectionPassword").value.trim(); 
         
-        // 🛠️ Auto-Fix Postimg URL format
+        let encodedPass = cPass !== "" ? btoa(cPass) : "";
+
         if(cIcon.includes("postimg.cc/") && !cIcon.includes("i.postimg.cc/")) {
             let parts = cIcon.split("/");
             let id = parts[parts.length-1];
             cIcon = `https://i.postimg.cc/${id}/${id}.png`; 
         }
         
-        let newSecData = { type: type, contentType: cType, customIcon: cIcon, isLocked: cPass !== "", password: cPass, data: type==="normal"?[]:{} };
+        let newSecData = { type: type, contentType: cType, customIcon: cIcon, isLocked: encodedPass !== "", password: encodedPass, data: type==="normal"?[]:{} };
         appData.customSections[name] = newSecData;
         
         await saveData(); fullRefresh(); 
@@ -817,7 +841,6 @@
     
     document.getElementById("logoutAdminBtn")?.addEventListener("click", () => { isAdminLoggedIn=false; fullRefresh(); alert("लॉगआउट"); clearLoginFields(); resetEditMode(); });
     
-    // 🛠️ HASH ROUTING (NATIVE BACK BUTTON FIX)
     window.addEventListener("hashchange", () => {
         let hash = window.location.hash;
         if(hash === "") {
