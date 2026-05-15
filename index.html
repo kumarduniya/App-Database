@@ -72,23 +72,24 @@
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
         .lock-badge { position: absolute; bottom: -6px; left: -6px; background: #1e293b; padding: 4px; font-size: 0.8rem; border-radius: 50%; color: #ffd966; border: 2px solid #fff3e0;}
 
-        /* ========= COMPACT MASTER LIST ========= */
+        /* ========= COMPACT MASTER LIST (FIXED DESIGN & SCROLL) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
         .compact-list { 
-            display: flex; flex-direction: column; gap: 0.8rem; 
+            display: flex; flex-direction: column; 
             max-height: 380px; overflow-y: auto; scroll-behavior: auto; 
-            padding-right: 5px; 
+            padding-right: 5px; position: relative;
         }
         .compact-list::-webkit-scrollbar { width: 6px; }
         .compact-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
 
+        /* 🎨 यहाँ पट्टी वाला डिज़ाइन वापस लाया गया है */
         .compact-chapter-item { 
             background: #0f172a; padding: 0.8rem 1rem; display: flex; 
             justify-content: space-between; align-items: center; 
-            gap: 12px; border-left: 4px solid #f97316; border-radius: 4px; color: white; 
-            flex-shrink: 0; 
+            gap: 12px; border: 1px solid #334155; border-left: 4px solid #f97316; border-radius: 6px; color: white; 
+            flex-shrink: 0; margin-bottom: 10px; width: 100%;
         }
         
         .compact-item-text { display: block; flex: 1; min-width: 0; line-height: 1.6; }
@@ -114,7 +115,6 @@
         .chapter-link-text { flex: 1; min-width: 0; display: block; line-height: 1.6; }
         .chapter-link-text span { display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 4px; font-size: 1.1rem; }
         .chapter-link-text strong { display: inline; vertical-align: middle; word-break: break-word; font-size: 0.95rem; }
-        .chapter-link-actions { flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
         .sub-subject-card-item { background: #2d3a4b; padding: 0.8rem; margin-bottom: 8px; cursor: pointer; border-left: 4px solid #f97316; border-radius: 4px; color: white; font-weight: bold; display: flex; justify-content: space-between;}
 
         /* ========= ADMIN PANEL ========= */
@@ -187,6 +187,7 @@
                     <option value="image">इमेज (Photo / Screenshot)</option>
                     <option value="test">ऑनलाइन टेस्ट (Quiz)</option>
                     <option value="link">अन्य लिंक (Website)</option>
+                    <option value="book">किताब (Book)</option>
                 </select>
             </div>
 
@@ -196,6 +197,17 @@
             </div>
         </div>
         
+        <div class="section-manager">
+            <h4>🔐 किसी भी फोल्डर को लॉक / अनलॉक करें</h4>
+            <div class="form-flex">
+                <div class="form-group"><select id="adminLockSelect"></select></div>
+                <div class="form-group">
+                    <input type="text" id="adminLockPassword" placeholder="नया पासवर्ड (अनलॉक करने के लिए खाली छोड़ें)">
+                </div>
+                <button class="btn-primary" id="updateLockBtn"><i class="fas fa-user-shield"></i> लॉक अपडेट करें</button>
+            </div>
+        </div>
+
         <div class="section-manager">
             <h4>➕ नया कस्टम सेक्शन बनाएं</h4>
             <div class="form-flex">
@@ -220,9 +232,6 @@
                 </div>
                 <div class="form-group" style="width: 100%;">
                     <input type="text" id="newSectionIcon" placeholder="आइकॉन क्लास या डायरेक्ट Image URL पेस्ट करें">
-                    <small style="color:#94a3b8; font-size:13px; display:block; margin-top:4px;">
-                        👉 <i>जुगाड़: FontAwesome आइकॉन (उदा: fas fa-user) या फोटो का डायरेक्ट (.png/.jpg) लिंक डालें।</i>
-                    </small>
                 </div>
                 <button class="btn-primary" id="createSectionBtn"><i class="fas fa-folder-plus"></i> फोल्डर बनाएं</button>
             </div>
@@ -304,6 +313,7 @@
         "hindi": "हिंदी", "math": "गणित", "reasoning": "तर्क", "current": "करंट", "affairs": "अफेयर्स", "gk": "जीके", "gs": "जीएस", "polity": "संविधान", "history": "इतिहास", "geography": "भूगोल", "science": "विज्ञान", "sarvanam": "सर्वनाम", "alankar": "अलंकार", "sandhi": "संधि", "samas": "समास", "practice": "प्रैक्टिस", "test": "टेस्ट", "video": "वीडियो", "question": "क्वेश्चन", "sir": "सर", "vivek": "विवेक", "book": "किताब", "document": "डॉक्यूमेंट", "my": "माय", "image": "इमेज", "photo": "फोटो"
     };
 
+    // 🚀 NEW: JS SCROLL TICKER (साइकिल चैन की तरह) + मैन्युअल सपोर्ट
     const compactListEl = document.getElementById("masterCompactList");
     let autoScrollTimer;
     let isUserScrolling = false;
@@ -314,11 +324,12 @@
         autoScrollTimer = setInterval(() => {
             if(!isUserScrolling && document.getElementById("globalSearchInput").value.trim() === "") {
                 compactListEl.scrollTop += 1;
-                if(Math.ceil(compactListEl.scrollTop + compactListEl.clientHeight) >= compactListEl.scrollHeight) {
+                // Seamless clone loop logic
+                if(compactListEl.scrollTop >= compactListEl.scrollHeight / 2) {
                     compactListEl.scrollTop = 0;
                 }
             }
-        }, 35); 
+        }, 30); 
     }
 
     function handleUserInteraction() {
@@ -328,18 +339,20 @@
 
     function handleUserInteractionEnd() {
         clearTimeout(resumeScrollTimeout);
-        resumeScrollTimeout = setTimeout(() => { isUserScrolling = false; }, 4000); 
+        resumeScrollTimeout = setTimeout(() => { isUserScrolling = false; }, 4000); // 4 सेकंड बाद वापस चालू
     }
 
     compactListEl.addEventListener("touchstart", handleUserInteraction);
     compactListEl.addEventListener("mousedown", handleUserInteraction);
     compactListEl.addEventListener("wheel", handleUserInteraction);
+    
     compactListEl.addEventListener("touchend", handleUserInteractionEnd);
     compactListEl.addEventListener("mouseup", handleUserInteractionEnd);
     compactListEl.addEventListener("mouseleave", handleUserInteractionEnd);
 
     startSmoothAutoScroll();
 
+    // 👁️ PASSWORD EYE TOGGLE
     document.getElementById("togglePasswordEye").addEventListener("click", function() {
         let input = document.getElementById("folderPasswordInput");
         if (input.type === "password") {
@@ -372,7 +385,6 @@
             alert("❌ गलत पासवर्ड! कृपया दोबारा प्रयास करें।");
         }
     });
-
 
     async function loadData() {
         try {
@@ -420,24 +432,43 @@
     function genId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 6); }
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => m=='&'?'&amp;':m=='<'?'&lt;':'&gt;'); }
 
+    // 🛠️ मास्टर गेट-सेक्शन फंक्शन (पुरानी लिस्ट को भी लॉक सपोर्ट देने के लिए)
     function getAllSections() {
         let sections = [];
-        DEFAULT_SECTIONS.forEach(s => sections.push({ key: s, isDefault: true, contentType: "pdf" }));
-        for(let k in appData.customSections) {
+        DEFAULT_SECTIONS.forEach(s => {
+            let meta = appData.customSections[s] || {};
             sections.push({ 
-                key: k, isDefault: false, type: appData.customSections[k].type, 
-                contentType: appData.customSections[k].contentType || "pdf",
-                customIcon: appData.customSections[k].customIcon || "",
-                isLocked: appData.customSections[k].isLocked || false
+                key: s, isDefault: true, 
+                contentType: meta.contentType || "pdf",
+                customIcon: meta.customIcon || "",
+                isLocked: meta.isLocked || false
             });
+        });
+        for(let k in appData.customSections) {
+            if(!DEFAULT_SECTIONS.includes(k)) {
+                sections.push({ 
+                    key: k, isDefault: false, type: appData.customSections[k].type, 
+                    contentType: appData.customSections[k].contentType || "pdf",
+                    customIcon: appData.customSections[k].customIcon || "",
+                    isLocked: appData.customSections[k].isLocked || false
+                });
+            }
         }
         return sections;
     }
     
     function getSectionData(key) {
+        let meta = appData.customSections[key] || {};
         if(DEFAULT_SECTIONS.includes(key)) {
-            if(key === "GKGS") return { type: "nested", contentType: "pdf", data: appData[key] };
-            return { type: "normal", contentType: "pdf", data: appData[key] };
+            let data = appData[key] || (key === "GKGS" ? {} : []);
+            return { 
+                type: key === "GKGS" ? "nested" : "normal", 
+                contentType: meta.contentType || "pdf", 
+                customIcon: meta.customIcon || "", 
+                isLocked: meta.isLocked || false, 
+                password: meta.password || "", 
+                data: data 
+            };
         }
         return appData.customSections[key] || { type: "normal", contentType: "pdf", data: [] };
     }
@@ -448,34 +479,22 @@
         else { let c=0; for(let s in data) c+=data[s].length; return c; }
     }
 
-    // 🌟 SMART ITEM DISPLAY HELPER (Dynamic Button & Icon)
     function getItemDisplayDetails(itemType, folderContentType) {
         let type = (itemType && itemType !== 'default') ? itemType : folderContentType;
-        
         let icon = '<i class="fas fa-file-pdf" style="color:#ff6b81;"></i>';
         let btnText = 'पीडीएफ खोलें';
         let btnIcon = 'fas fa-book-open';
 
         if(type === 'video') { 
-            icon = '<i class="fas fa-play-circle" style="color:#ff4757;"></i>'; 
-            btnText = 'प्ले करें'; 
-            btnIcon = 'fas fa-play'; 
+            icon = '<i class="fas fa-play-circle" style="color:#ff4757;"></i>'; btnText = 'प्ले करें'; btnIcon = 'fas fa-play'; 
         } else if(type === 'image') { 
-            icon = '<i class="fas fa-image" style="color:#a855f7;"></i>'; 
-            btnText = 'इमेज देखें'; 
-            btnIcon = 'fas fa-image'; 
+            icon = '<i class="fas fa-image" style="color:#a855f7;"></i>'; btnText = 'इमेज देखें'; btnIcon = 'fas fa-image'; 
         } else if(type === 'test') { 
-            icon = '<i class="fas fa-check-circle" style="color:#10b981;"></i>'; 
-            btnText = 'टेस्ट दें'; 
-            btnIcon = 'fas fa-pencil-alt'; 
+            icon = '<i class="fas fa-check-circle" style="color:#10b981;"></i>'; btnText = 'टेस्ट दें'; btnIcon = 'fas fa-pencil-alt'; 
         } else if(type === 'link') { 
-            icon = '<i class="fas fa-link" style="color:#6366f1;"></i>'; 
-            btnText = 'लिंक खोलें'; 
-            btnIcon = 'fas fa-globe'; 
+            icon = '<i class="fas fa-link" style="color:#6366f1;"></i>'; btnText = 'लिंक खोलें'; btnIcon = 'fas fa-globe'; 
         } else if(type === 'book') { 
-            icon = '<i class="fas fa-book" style="color:#3b82f6;"></i>'; 
-            btnText = 'किताब खोलें'; 
-            btnIcon = 'fas fa-book-reader'; 
+            icon = '<i class="fas fa-book" style="color:#3b82f6;"></i>'; btnText = 'किताब खोलें'; btnIcon = 'fas fa-book-reader'; 
         }
 
         return { icon, btnText, btnIcon };
@@ -499,7 +518,7 @@
             else if(s.contentType === "book") iconClass = "fas fa-book"; 
             
             let iconHtml = `<i class="${iconClass}"></i>`;
-            if(!s.isDefault && s.customIcon && s.customIcon.trim() !== "") {
+            if(s.customIcon && s.customIcon.trim() !== "") {
                 if(s.customIcon.startsWith("http")) {
                     iconHtml = `<img src="${escapeHtml(s.customIcon)}" style="width: 45px; height: 45px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));" onerror="this.outerHTML='<i class=\\'fas fa-image\\' style=\\'font-size: 2.8rem;\\'></i>'">`;
                 } else {
@@ -539,6 +558,7 @@
 
         const { type, contentType, data } = secData;
         const cont = document.getElementById("subjectDetailContent");
+
         let lockBtnHtml = secData.isLocked ? `<button class="lock-close-btn" onclick="lockFolder('${secKey}')"><i class="fas fa-lock"></i> 🔒 लॉक करें</button>` : '';
         
         if(type === "nested") {
@@ -615,13 +635,18 @@
         document.getElementById("subjectPage").classList.remove("active");
     }
 
+    document.getElementById("globalSearchInput").addEventListener("input", function(e) {
+        renderCompactMasterList(e.target.value);
+    });
+
     function renderCompactMasterList(searchQuery = "") {
         const container = document.getElementById("masterCompactList");
         allGlobalItems = [];
         
         getAllSections().forEach(sec => {
             const secData = getSectionData(sec.key);
-            if(secData.isLocked) return; // 🔒 प्राइवेट फोल्डर लिस्ट में नहीं दिखेगा
+            // 🛑 STRICT SECURITY CHECK: अगर फोल्डर लॉक है, तो उसका डेटा लिस्ट में नहीं आएगा
+            if(secData.isLocked === true) return; 
             
             if(secData.type === "normal") secData.data.forEach(ch => allGlobalItems.push({ ...ch, label: sec.key, sKey: sec.key, folderContentType: secData.contentType }));
             else for(let sub in secData.data) secData.data[sub].forEach(ch => allGlobalItems.push({ ...ch, label: `${sec.key} (${sub})`, sKey: sec.key, subName: sub, folderContentType: secData.contentType }));
@@ -648,6 +673,7 @@
         let h = "";
         filteredItems.forEach(ch => {
             let display = getItemDisplayDetails(ch.itemType, ch.folderContentType);
+            // 🎨 पट्टी (कार्ड) वाला नया डिज़ाइन
             h += `<div class="compact-chapter-item">
                     <div class="compact-item-text">
                         <span class="compact-badge">${display.icon} ${escapeHtml(ch.label)}</span> 
@@ -661,10 +687,11 @@
                   </div>`;
         });
         
-        if(searchQuery === "" && filteredItems.length > 4) {
-            container.innerHTML = `<div class="ticker-wrapper animate" style="animation-duration: ${filteredItems.length * 3}s">${h}${h}</div>`;
+        // 🔄 Seamless Scroll Cloning
+        if(searchQuery === "" && filteredItems.length > 3) {
+            container.innerHTML = `<div>${h}${h}</div>`; 
         } else {
-            container.innerHTML = `<div class="ticker-wrapper">${h}</div>`;
+            container.innerHTML = `<div>${h}</div>`;
         }
         
         attachOpenButtons(container);
@@ -705,7 +732,7 @@
         
         document.getElementById("adminChapterName").value = name;
         document.getElementById("adminPdfUrl").value = url;
-        document.getElementById("adminItemType").value = itemType || "default"; // 🆕
+        document.getElementById("adminItemType").value = itemType || "default"; 
         
         let addBtn = document.getElementById("addChapterAdminBtn");
         addBtn.innerHTML = `<i class="fas fa-save"></i> अपडेट करें`;
@@ -734,10 +761,35 @@
         document.getElementById("adminFormTitle").innerHTML = `<i class="fas fa-plus-circle"></i> नया डेटा जोड़ें`;
     }
 
+    // 🔐 एडमिन से पुरानी लिस्ट पर लॉक लगाना
+    document.getElementById("updateLockBtn").addEventListener("click", async () => {
+        if(!isAdminLoggedIn) return;
+        let secKey = document.getElementById("adminLockSelect").value;
+        let pass = document.getElementById("adminLockPassword").value.trim();
+        
+        if(!appData.customSections[secKey]) appData.customSections[secKey] = {};
+        
+        if(pass === "") {
+            appData.customSections[secKey].isLocked = false;
+            appData.customSections[secKey].password = "";
+            alert(`"${secKey}" अब अनलॉक हो गया है!`);
+        } else {
+            appData.customSections[secKey].isLocked = true;
+            appData.customSections[secKey].password = btoa(pass); // Base64 Secure Entry
+            alert(`🔒 "${secKey}" सुरक्षित रूप से लॉक हो गया है!`);
+        }
+        await saveData(); 
+        fullRefresh();
+        document.getElementById("adminLockPassword").value = "";
+    });
+
     function updateAdminSelect() {
         const sel = document.getElementById("adminSubjectSelect");
+        const lockSel = document.getElementById("adminLockSelect"); // For lock updates
         let opts = ""; getAllSections().forEach(s => { opts += `<option value="${s.key}">${s.key}</option>`; });
-        sel.innerHTML = opts; toggleGkField();
+        sel.innerHTML = opts; 
+        lockSel.innerHTML = opts; 
+        toggleGkField();
     }
     
     function toggleGkField() { let sec = document.getElementById("adminSubjectSelect").value; let { type } = getSectionData(sec); document.getElementById("gkSubSubjectGroup").style.display = type === "nested" ? "block" : "none"; }
@@ -745,7 +797,7 @@
     async function addChapter() {
         if(!isAdminLoggedIn) return alert("लॉगिन करें");
         let name = document.getElementById("adminChapterName").value.trim(), url = document.getElementById("adminPdfUrl").value.trim(), section = document.getElementById("adminSubjectSelect").value;
-        let itemType = document.getElementById("adminItemType").value; // 🆕
+        let itemType = document.getElementById("adminItemType").value; 
 
         if(!name || !url) return alert("सभी भरें");
         if(!url.startsWith("http")) url = "https://" + url;
@@ -762,7 +814,7 @@
                 if(itemIndex > -1) {
                     list[itemIndex].name = name;
                     list[itemIndex].url = url;
-                    list[itemIndex].itemType = itemType; // 🆕
+                    list[itemIndex].itemType = itemType; 
                 }
             }
             await saveData(); fullRefresh(); resetEditMode(); alert("सफलतापूर्वक अपडेट हो गया!");
