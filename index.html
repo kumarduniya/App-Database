@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Study Notes Manager | लाइव ऐप</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -66,6 +66,7 @@
         .subject-card.custom-test .app-icon-box { background: linear-gradient(135deg, #10b981, #047857); }
         .subject-card.custom-link .app-icon-box { background: linear-gradient(135deg, #6366f1, #4338ca); }
         .subject-card.custom-book .app-icon-box { background: linear-gradient(135deg, #3b82f6, #1d4ed8); } 
+        /* 🔒 लॉक वाले फोल्डर का कलर अलग */
         .subject-card.is-locked .app-icon-box { background: linear-gradient(135deg, #475569, #0f172a); border: 2px solid #ef4444;}
 
         .subject-name { font-size: 0.95rem; font-weight: 700; color: #1e293b; text-align: center; line-height: 1.2; word-break: break-word; }
@@ -78,7 +79,7 @@
         
         .compact-list { 
             display: flex; flex-direction: column; gap: 0.8rem; 
-            max-height: 380px; overflow-y: auto; scroll-behavior: auto; /* Changed for smooth JS scroll */
+            max-height: 380px; overflow-y: auto; scroll-behavior: auto; 
             padding-right: 5px; 
         }
         .compact-list::-webkit-scrollbar { width: 6px; }
@@ -88,7 +89,7 @@
             background: #0f172a; padding: 0.8rem 1rem; display: flex; 
             justify-content: space-between; align-items: center; 
             gap: 12px; border-left: 4px solid #f97316; border-radius: 4px; color: white; 
-            flex-shrink: 0; /* Ensures items don't squash */
+            flex-shrink: 0; 
         }
         
         .compact-item-text { display: block; flex: 1; min-width: 0; line-height: 1.6; }
@@ -208,7 +209,7 @@
                 <div class="form-group" style="width: 100%;">
                     <input type="text" id="newSectionIcon" placeholder="आइकॉन क्लास या डायरेक्ट Image URL पेस्ट करें">
                     <small style="color:#94a3b8; font-size:13px; display:block; margin-top:4px;">
-                        👉 <i>जुगाड़: फोटो का डायरेक्ट (.png/.jpg) लिंक डालें। वेबसाइट का लिंक नहीं।</i>
+                        👉 <i>जुगाड़: FontAwesome आइकॉन (उदा: fas fa-user) या फोटो का डायरेक्ट (.png/.jpg) लिंक डालें।</i>
                     </small>
                 </div>
                 <button class="btn-primary" id="createSectionBtn"><i class="fas fa-folder-plus"></i> फोल्डर बनाएं</button>
@@ -267,6 +268,7 @@
 </div>
 
 <script>
+    // URL Hash Reset
     if (window.location.hash) history.replaceState(null, null, window.location.pathname);
 
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyE6NajCOnS0lZA-1ITRi72wL4eJjSetMr_zcOCsoijO4CNHWEHRq0TUg0H46oR0avBQQ/exec"; 
@@ -302,15 +304,13 @@
     function startSmoothAutoScroll() {
         clearInterval(autoScrollTimer);
         autoScrollTimer = setInterval(() => {
-            // अगर यूजर कुछ नहीं कर रहा है और सर्च बॉक्स खाली है, तब एनीमेशन चलेगा
             if(!isUserScrolling && document.getElementById("globalSearchInput").value.trim() === "") {
                 compactListEl.scrollTop += 1;
-                // अगर लिस्ट के एंड में पहुँच गए, तो वापस टॉप से शुरू करो (Endless Loop Effect)
                 if(Math.ceil(compactListEl.scrollTop + compactListEl.clientHeight) >= compactListEl.scrollHeight) {
                     compactListEl.scrollTop = 0;
                 }
             }
-        }, 35); // 35ms स्पीड (मस्त और स्लो गियर की तरह)
+        }, 35); 
     }
 
     function handleUserInteraction() {
@@ -322,21 +322,18 @@
         clearTimeout(resumeScrollTimeout);
         resumeScrollTimeout = setTimeout(() => {
             isUserScrolling = false;
-        }, 4000); // 4 सेकंड बाद एनीमेशन वापस चालू
+        }, 4000); 
     }
 
-    // जब यूजर टच करे या माउस से स्क्रॉल करे तो एनीमेशन रुके
     compactListEl.addEventListener("touchstart", handleUserInteraction);
     compactListEl.addEventListener("mousedown", handleUserInteraction);
     compactListEl.addEventListener("wheel", handleUserInteraction);
     
-    // जब यूजर उंगली हटा ले तो 4 सेकंड बाद वापस चालू हो जाए
     compactListEl.addEventListener("touchend", handleUserInteractionEnd);
     compactListEl.addEventListener("mouseup", handleUserInteractionEnd);
     compactListEl.addEventListener("mouseleave", handleUserInteractionEnd);
 
     startSmoothAutoScroll();
-
 
     // 👁️ PASSWORD EYE TOGGLE
     document.getElementById("togglePasswordEye").addEventListener("click", function() {
@@ -352,7 +349,7 @@
         }
     });
 
-    // 🔓 PASSWORD MODAL BUTTONS
+    // 🔓 PASSWORD MODAL BUTTONS (BUG FIXED)
     document.getElementById("cancelPasswordBtn").addEventListener("click", () => {
         document.getElementById("passwordModal").classList.remove("active");
         pendingSubjectToOpen = null;
@@ -365,8 +362,10 @@
         if(pass === secData.password) {
             unlockedSession[pendingSubjectToOpen] = true;
             document.getElementById("passwordModal").classList.remove("active");
-            history.back(); // Remove #password from URL
-            // अब असली में फोल्डर खोलो
+            
+            // 🛠️ BUG FIX: Race condition fixed! Replace URL instantly instead of going back.
+            history.replaceState(null, null, window.location.pathname); 
+            
             openSubject(pendingSubjectToOpen);
         } else {
             alert("❌ गलत पासवर्ड! कृपया दोबारा प्रयास करें।");
@@ -465,12 +464,13 @@
             else if(s.contentType === "link") iconClass = "fas fa-link"; 
             else if(s.contentType === "book") iconClass = "fas fa-book"; 
             
-            // 🖼️ CUSTOM IMAGE LOGIC FIX (45x45px size limit inside box)
+            // 🖼️ FontAwesome vs Image Logic
             let iconHtml = `<i class="${iconClass}"></i>`;
             if(!s.isDefault && s.customIcon && s.customIcon.trim() !== "") {
                 if(s.customIcon.startsWith("http")) {
                     iconHtml = `<img src="${escapeHtml(s.customIcon)}" style="width: 45px; height: 45px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));" onerror="this.outerHTML='<i class=\\'fas fa-image\\' style=\\'font-size: 2.8rem;\\'></i>'">`;
                 } else {
+                    // FontAwesome class provided by user
                     iconHtml = `<i class="${escapeHtml(s.customIcon)}"></i>`;
                 }
             }
@@ -642,7 +642,6 @@
                   </div>`;
         });
         
-        // 🚀 Chain Ticker Illusion: Duplicate list if items > 4 and no search
         if(searchQuery === "" && filteredItems.length > 4) {
             container.innerHTML = h + h; 
         } else {
@@ -733,7 +732,7 @@
         let subN = document.getElementById("gkSubSubjectName").value.trim();
         
         if(editMode) {
-            let list = type === "nested" ? data[subName||""] : data; // Fallback handled earlier
+            let list = type === "nested" ? data[subName||""] : data; 
             if(type === "nested" && subN) list = data[subN];
             
             if(list) {
@@ -771,11 +770,11 @@
         let cIcon = document.getElementById("newSectionIcon").value.trim(); 
         let cPass = document.getElementById("newSectionPassword").value.trim(); 
         
-        // 🛠️ Auto-Fix Postimg URL format (If user enters page link instead of direct link)
+        // 🛠️ Auto-Fix Postimg URL format
         if(cIcon.includes("postimg.cc/") && !cIcon.includes("i.postimg.cc/")) {
             let parts = cIcon.split("/");
             let id = parts[parts.length-1];
-            cIcon = `https://i.postimg.cc/${id}/${id}.png`; // A rough fallback guess, proper direct link is better
+            cIcon = `https://i.postimg.cc/${id}/${id}.png`; 
         }
         
         let newSecData = { type: type, contentType: cType, customIcon: cIcon, isLocked: cPass !== "", password: cPass, data: type==="normal"?[]:{} };
