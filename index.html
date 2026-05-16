@@ -93,7 +93,7 @@
         .chapter-count-badge { position: absolute; top: -6px; right: -6px; background: #ef4444; padding: 3px 8px; font-weight: 800; font-size: 0.8rem; border-radius: 12px; border: 2px solid #fff3e0; color: white; z-index: 10;}
         .lock-badge { position: absolute; bottom: -6px; left: -6px; background: #1e293b; padding: 4px; font-size: 0.8rem; border-radius: 50%; color: #ffd966; border: 2px solid #fff3e0;}
 
-        /* ========= COMPACT MASTER LIST (SLIM & INLINE FIX) ========= */
+        /* ========= COMPACT MASTER LIST (SLIM & INLINE) ========= */
         .master-chapters-section { background: #1e293b; padding: 1.6rem; margin-top: 1rem; border-radius: 8px; border-left: 6px solid #f97316; }
         .master-title { font-size: 1.5rem; font-weight: 700; color: #ffd966; margin-bottom: 1rem; border-left: 4px solid #f97316; padding-left: 1rem; }
         
@@ -112,7 +112,6 @@
             flex-shrink: 0; margin-bottom: 10px; width: 100%;
         }
         
-        /* 🔴 100% INLINE LAYOUT 🔴 */
         .compact-item-text { display: block; flex: 1; min-width: 0; line-height: 1.5; }
         .compact-badge { background: #ffedd5; padding: 3px 8px; font-weight: 700; color: #b45309; font-size: 0.75rem; border-radius: 4px; display: inline-block; vertical-align: middle; margin-right: 8px; margin-bottom: 2px;}
         .compact-item-text strong { color: white; font-size: 0.95rem; display: inline; vertical-align: middle; word-break: break-word; }
@@ -474,7 +473,6 @@
         cont.innerHTML = h;
     }
 
-    // 🆕 CLEAR LOCAL NOTIFICATIONS
     function clearLocalNotifications() {
         localStorage.setItem('clearedNotifsTime', Date.now().toString());
         renderNotifications();
@@ -800,7 +798,6 @@
             if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">No Items</div>`;
             else {
                 let h = "";
-                // 🔴 100% INLINE FIX FOR INNER FOLDER
                 chapters.forEach(ch => { 
                     let display = getItemDisplayDetails(ch.itemType, contentType);
                     
@@ -839,7 +836,6 @@
         if(chapters.length === 0) cont.innerHTML = `<div style="color:white;text-align:center;">No Items</div>`;
         else {
             let h = "";
-            // 🔴 100% INLINE FIX FOR INNER SUB-FOLDER
             chapters.forEach(ch => { 
                 let display = getItemDisplayDetails(ch.itemType, contentType);
                 
@@ -861,10 +857,6 @@
         document.getElementById("subSubjectPage").classList.add("active");
         document.getElementById("subjectPage").classList.remove("active");
     }
-
-    document.getElementById("globalSearchInput").addEventListener("input", function(e) {
-        renderCompactMasterList(e.target.value, document.getElementById("dateSearchInput").value);
-    });
 
     function renderCompactMasterList(searchQuery = "", dateQuery = "") {
         const container = document.getElementById("masterCompactList");
@@ -909,11 +901,11 @@
         filteredItems.forEach(ch => {
             let display = getItemDisplayDetails(ch.itemType, ch.folderContentType);
             
-            // 🔴 100% INLINE FIX FOR MASTER LIST
+            // 🆕 BUTTON TEXT ONLY SAYS "Open"
             h += `<div class="compact-chapter-item">
                     <div class="compact-item-text">
                         <span class="compact-badge">${display.icon} ${escapeHtml(ch.label)}</span> 
-                        <strong>${escapeHtml(ch.name)}</strong>
+                        <strong style="display:inline-block; margin-left:5px; vertical-align:middle;">${escapeHtml(ch.name)}</strong>
                     </div>
                     <div class="compact-item-actions">
                         <button class="action-btn btn-open" data-url="${escapeHtml(ch.url)}" data-ts="${ch.timestamp || ''}"><i class="${display.btnIcon}"></i> Open</button> 
@@ -979,9 +971,10 @@
         else if (isPageActive === "subSubject") openSubSubject(currentOpenSubject, currentOpenSubSubject, true);
     }
 
+    // 🔴 🆕 BUG FIX: Edit function subName scope issue fixed!
     function startEdit(id, section, subName, name, url, itemType) {
         editMode = true;
-        editItemDetails = { id, section, subName };
+        editItemDetails = { id: id, section: section, subName: subName }; // Fixed scope bug!
         
         document.getElementById("adminSubjectSelect").value = section;
         toggleGkField();
@@ -1100,16 +1093,31 @@
         let subN = document.getElementById("gkSubSubjectName").value.trim();
         let timestamp = Date.now(); 
         
+        // 🔴 🆕 BUG FIX: Proper scope reference for editMode
         if(editMode) {
-            let list = type === "nested" ? data[subName||""] : data; 
-            if(type === "nested" && subN) list = data[subN];
-            
-            if(list) {
-                let itemIndex = list.findIndex(i => i.id === editItemDetails.id);
+            let oldSec = editItemDetails.section;
+            let oldSub = editItemDetails.subName;
+            let oldSecData = getSectionData(oldSec);
+            let oldList = oldSecData.type === "nested" ? oldSecData.data[oldSub] : oldSecData.data;
+
+            if(oldList) {
+                let itemIndex = oldList.findIndex(i => i.id === editItemDetails.id);
                 if(itemIndex > -1) {
-                    list[itemIndex].name = name;
-                    list[itemIndex].url = url;
-                    list[itemIndex].itemType = itemType; 
+                    let itemToUpdate = oldList[itemIndex];
+                    itemToUpdate.name = name;
+                    itemToUpdate.url = url;
+                    itemToUpdate.itemType = itemType;
+                    
+                    if(oldSec !== section || (type === "nested" && oldSub !== subN)) {
+                        oldList.splice(itemIndex, 1); 
+                        if(type === "nested") {
+                            if(!subN) return showToast("Sub-Section Name Required!", "error");
+                            if(!data[subN]) data[subN] = [];
+                            data[subN].push(itemToUpdate);
+                        } else {
+                            data.push(itemToUpdate);
+                        }
+                    }
                 }
             }
             await saveData(); fullRefresh(); resetEditMode(); showToast("Updated Successfully!", "success");
@@ -1206,6 +1214,7 @@
     window.addEventListener("hashchange", () => {
         let hash = window.location.hash;
         
+        // Hide all modals first
         document.getElementById("subjectPage").classList.remove("active");
         document.getElementById("subSubjectPage").classList.remove("active");
         document.getElementById("loginModal").classList.remove("active");
